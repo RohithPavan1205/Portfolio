@@ -21,28 +21,28 @@
     });
   }
 
-  function createTextTexture(gl, text, font = 'bold 30px monospace', color = 'black') {
+  function createTextTexture(gl, text, font, color, OGL) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     context.font = font;
     const metrics = context.measureText(text);
     const textWidth = Math.ceil(metrics.width);
     const textHeight = Math.ceil(parseInt(font, 10) * 1.5);
-    canvas.width = Math.max(1, textWidth + 40);
-    canvas.height = Math.max(1, textHeight + 40);
+    canvas.width = Math.max(1, textWidth + 100);
+    canvas.height = Math.max(1, textHeight + 100);
     context.font = font;
     context.fillStyle = color;
     context.textBaseline = 'middle';
     context.textAlign = 'center';
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillText(text, canvas.width / 2, canvas.height / 2);
-    const texture = new window.ogl.Texture(gl, { generateMipmaps: false });
+    const texture = new OGL.Texture(gl, { generateMipmaps: false });
     texture.image = canvas;
     return { texture, width: canvas.width, height: canvas.height };
   }
 
   class Title {
-    constructor({ gl, plane, renderer, text, textColor = '#545050', font = '30px sans-serif' }) {
+    constructor({ gl, plane, renderer, text, textColor, font, OGL }) {
       autoBind(this);
       this.gl = gl;
       this.plane = plane;
@@ -50,12 +50,13 @@
       this.text = text;
       this.textColor = textColor;
       this.font = font;
+      this.OGL = OGL;
       this.createMesh();
     }
     createMesh() {
-      const { texture, width, height } = createTextTexture(this.gl, this.text, this.font, this.textColor);
-      const geometry = new window.ogl.Plane(this.gl);
-      const program = new window.ogl.Program(this.gl, {
+      const { texture, width, height } = createTextTexture(this.gl, this.text, this.font, this.textColor, this.OGL);
+      const geometry = new this.OGL.Plane(this.gl);
+      const program = new this.OGL.Program(this.gl, {
         vertex: `
           attribute vec3 position;
           attribute vec2 uv;
@@ -73,19 +74,19 @@
           varying vec2 vUv;
           void main() {
             vec4 color = texture2D(tMap, vUv);
-            if (color.a < 0.05) discard;
+            if (color.a < 0.01) discard;
             gl_FragColor = color;
           }
         `,
         uniforms: { tMap: { value: texture } },
         transparent: true
       });
-      this.mesh = new window.ogl.Mesh(this.gl, { geometry, program });
+      this.mesh = new this.OGL.Mesh(this.gl, { geometry, program });
       const aspect = width / height;
       const textHeight = this.plane.scale.y * 0.15;
       const textWidth = textHeight * aspect;
       this.mesh.scale.set(textWidth, textHeight, 1);
-      this.mesh.position.y = -this.plane.scale.y * 0.5 - textHeight * 0.5 - 0.1;
+      this.mesh.position.y = -this.plane.scale.y * 0.5 - textHeight * 0.5 - 0.2;
       this.mesh.setParent(this.plane);
     }
   }
@@ -104,8 +105,9 @@
       viewport,
       bend,
       textColor,
-      borderRadius = 0,
-      font
+      borderRadius,
+      font,
+      OGL
     }) {
       this.extra = 0;
       this.geometry = geometry;
@@ -122,16 +124,17 @@
       this.textColor = textColor;
       this.borderRadius = borderRadius;
       this.font = font;
+      this.OGL = OGL;
       this.createShader();
       this.createMesh();
       this.createTitle();
       this.onResize();
     }
     createShader() {
-      const texture = new window.ogl.Texture(this.gl, {
+      const texture = new this.OGL.Texture(this.gl, {
         generateMipmaps: true
       });
-      this.program = new window.ogl.Program(this.gl, {
+      this.program = new this.OGL.Program(this.gl, {
         depthTest: false,
         depthWrite: false,
         vertex: `
@@ -146,7 +149,7 @@
           void main() {
             vUv = uv;
             vec3 p = position;
-            p.z = (sin(p.x * 4.0 + uTime) * 1.5 + cos(p.y * 2.0 + uTime) * 1.5) * (0.1 + abs(uSpeed) * 0.5);
+            p.z = (sin(p.x * 4.0 + uTime) * 1.5 + cos(p.y * 2.0 + uTime) * 1.5) * (0.1 + abs(uSpeed) * 0.8);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
           }
         `,
@@ -181,7 +184,7 @@
         uniforms: {
           tMap: { value: texture },
           uPlaneSizes: { value: [0, 0] },
-          uImageSizes: { value: [1, 1] },
+          uImageSizes: { value: [1.0, 1.0] },
           uSpeed: { value: 0 },
           uTime: { value: 100 * Math.random() },
           uBorderRadius: { value: this.borderRadius }
@@ -197,7 +200,7 @@
       };
     }
     createMesh() {
-      this.plane = new window.ogl.Mesh(this.gl, {
+      this.plane = new this.OGL.Mesh(this.gl, {
         geometry: this.geometry,
         program: this.program
       });
@@ -210,10 +213,12 @@
         renderer: this.renderer,
         text: this.text,
         textColor: this.textColor,
-        font: this.font
+        font: this.font,
+        OGL: this.OGL
       });
     }
     update(scroll, direction) {
+      if (!this.plane) return;
       this.plane.position.x = this.x - scroll.current - this.extra;
 
       const x = this.plane.position.x;
@@ -255,6 +260,7 @@
       }
     }
     onResize({ screen, viewport } = {}) {
+      if (!this.plane) return;
       if (screen) this.screen = screen;
       if (viewport) {
         this.viewport = viewport;
@@ -263,7 +269,7 @@
       this.plane.scale.y = (this.viewport.height * (900 * this.scale)) / this.screen.height;
       this.plane.scale.x = (this.viewport.width * (700 * this.scale)) / this.screen.width;
       this.plane.program.uniforms.uPlaneSizes.value = [this.plane.scale.x, this.plane.scale.y];
-      this.padding = 2;
+      this.padding = 2.5;
       this.width = this.plane.scale.x + this.padding;
       this.widthTotal = this.width * this.length;
       this.x = this.width * this.index;
@@ -274,8 +280,13 @@
     constructor(container, options = {}) {
       this.container = container;
       this.options = options;
-      this.scrollSpeed = options.scrollSpeed || 2;
-      this.scroll = { ease: options.scrollEase || 0.05, current: 0, target: 0, last: 0 };
+      this.OGL = options.OGL || window.ogl || window.OGL;
+      if (!this.OGL) {
+          console.error('OGL not found');
+          return;
+      }
+      this.scrollSpeed = options.scrollSpeed || 2.5;
+      this.scroll = { ease: options.scrollEase || 0.1, current: 0, target: 0, last: 0 };
       this.onCheckDebounce = debounce(this.onCheck.bind(this), 200);
       
       this.createRenderer();
@@ -288,7 +299,7 @@
       this.addEventListeners();
     }
     createRenderer() {
-      this.renderer = new window.ogl.Renderer({
+      this.renderer = new this.OGL.Renderer({
         alpha: true,
         antialias: true,
         dpr: Math.min(window.devicePixelRatio || 1, 2)
@@ -298,15 +309,15 @@
       this.container.appendChild(this.gl.canvas);
     }
     createCamera() {
-      this.camera = new window.ogl.Camera(this.gl);
+      this.camera = new this.OGL.Camera(this.gl);
       this.camera.fov = 45;
       this.camera.position.z = 20;
     }
     createScene() {
-      this.scene = new window.ogl.Transform();
+      this.scene = new this.OGL.Transform();
     }
     createGeometry() {
-      this.planeGeometry = new window.ogl.Plane(this.gl, {
+      this.planeGeometry = new this.OGL.Plane(this.gl, {
         heightSegments: 50,
         widthSegments: 100
       });
@@ -327,9 +338,10 @@
           text: data.text,
           viewport: this.viewport,
           bend: this.options.bend || 3,
-          textColor: this.options.textColor || '#ffffff',
-          borderRadius: this.options.borderRadius || 0,
-          font: this.options.font || 'bold 30px monospace'
+          textColor: this.options.textColor || '#c8852a',
+          borderRadius: this.options.borderRadius || 0.05,
+          font: this.options.font || 'bold 24px Courier Prime',
+          OGL: this.OGL
         });
       });
     }
@@ -350,7 +362,7 @@
     }
     onWheel(e) {
       const delta = e.deltaY || e.wheelDelta || e.detail;
-      this.scroll.target += (delta > 0 ? this.scrollSpeed : -this.scrollSpeed) * 0.1;
+      this.scroll.target += (delta > 0 ? 1 : -1) * this.scrollSpeed * 0.15;
       this.onCheckDebounce();
     }
     onCheck() {
@@ -361,9 +373,10 @@
       this.scroll.target = this.scroll.target < 0 ? -item : item;
     }
     onResize() {
+      if (!this.container) return;
       this.screen = {
-        width: this.container.clientWidth,
-        height: this.container.clientHeight
+        width: this.container.clientWidth || window.innerWidth,
+        height: this.container.clientHeight || 600
       };
       this.renderer.setSize(this.screen.width, this.screen.height);
       this.camera.perspective({
@@ -389,7 +402,6 @@
     }
     addEventListeners() {
       window.addEventListener('resize', this.onResize.bind(this));
-      this.container.addEventListener('mousewheel', this.onWheel.bind(this), { passive: false });
       this.container.addEventListener('wheel', this.onWheel.bind(this), { passive: false });
       this.container.addEventListener('mousedown', this.onTouchDown.bind(this));
       window.addEventListener('mousemove', this.onTouchMove.bind(this));
@@ -401,10 +413,6 @@
   }
 
   window.initCircularGallery = function(container, options) {
-    if (!window.ogl) {
-        console.error('OGL not loaded yet');
-        return;
-    }
     return new CircularGalleryApp(container, options);
   };
 })();
