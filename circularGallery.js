@@ -232,7 +232,7 @@
         const R = (H * H + B_abs * B_abs) / (2 * B_abs);
         const effectiveX = Math.min(Math.abs(x), H);
 
-        const arc = R - Math.sqrt(Math.max(0, R * R - effectiveX * effectiveX));
+        const arc = R - Math.sqrt(Math.max(0.001, R * R - effectiveX * effectiveX));
         if (this.bend > 0) {
           this.plane.position.y = -arc;
           this.plane.rotation.z = -Math.sign(x) * Math.asin(effectiveX / R);
@@ -278,11 +278,12 @@
 
   class CircularGalleryApp {
     constructor(container, options = {}) {
+      console.log('CircularGalleryApp Constructor Called');
       this.container = container;
       this.options = options;
       this.OGL = options.OGL || window.ogl || window.OGL;
       if (!this.OGL) {
-          console.error('OGL not found');
+          console.error('OGL not found in window or options');
           return;
       }
       this.scrollSpeed = options.scrollSpeed || 2.5;
@@ -306,7 +307,18 @@
       });
       this.gl = this.renderer.gl;
       this.gl.clearColor(0, 0, 0, 0);
+      
+      // Force canvas size and visibility
+      this.gl.canvas.style.display = 'block';
+      this.gl.canvas.style.width = '100%';
+      this.gl.canvas.style.height = '100%';
+      this.gl.canvas.style.position = 'absolute';
+      this.gl.canvas.style.top = '0';
+      this.gl.canvas.style.left = '0';
+      this.gl.canvas.style.zIndex = '1';
+      
       this.container.appendChild(this.gl.canvas);
+      console.log('Renderer Created and Canvas Appended');
     }
     createCamera() {
       this.camera = new this.OGL.Camera(this.gl);
@@ -324,6 +336,7 @@
     }
     createMedias() {
       const items = this.options.items || [];
+      console.log('Creating Media for items:', items.length);
       this.mediasImages = items.concat(items);
       this.medias = this.mediasImages.map((data, index) => {
         return new Media({
@@ -346,9 +359,11 @@
       });
     }
     onTouchDown(e) {
-      this.isDown = true;
-      this.scroll.position = this.scroll.current;
-      this.start = e.touches ? e.touches[0].clientX : e.clientX;
+      if (e.target.closest('#photography')) {
+        this.isDown = true;
+        this.scroll.position = this.scroll.current;
+        this.start = e.touches ? e.touches[0].clientX : e.clientX;
+      }
     }
     onTouchMove(e) {
       if (!this.isDown) return;
@@ -373,11 +388,11 @@
       this.scroll.target = this.scroll.target < 0 ? -item : item;
     }
     onResize() {
-      if (!this.container) return;
       this.screen = {
         width: this.container.clientWidth || window.innerWidth,
         height: this.container.clientHeight || 600
       };
+      console.log('Gallery Resize:', this.screen);
       this.renderer.setSize(this.screen.width, this.screen.height);
       this.camera.perspective({
         aspect: this.screen.width / this.screen.height
@@ -413,6 +428,10 @@
   }
 
   window.initCircularGallery = function(container, options) {
+    if (!window.ogl && !window.OGL) {
+        console.error('OGL not loaded yet');
+        return;
+    }
     return new CircularGalleryApp(container, options);
   };
 })();

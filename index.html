@@ -517,7 +517,7 @@ footer{padding:32px 64px;border-top:1px solid var(--line);display:flex;align-ite
   <div class="section-wrap">
     <div class="sec-label fade-up">Through The Lens</div>
     <h2 class="sec-title fade-up">VISUAL<br>CRAFT</h2>
-    <div id="gallery-container" style="height: 600px; width: 100%; position: relative; margin-bottom: 20px; z-index: 100; opacity: 1;"></div>
+    <div id="gallery-container" style="height: 600px; width: 100%; position: relative; margin-bottom: 20px; z-index: 100; opacity: 1; border: 1px dashed rgba(200,133,42,0.15);"></div>
     
     <div class="photo-intro-wrapper">
       <p class="photo-intro-text fade-up">Photography is not a hobby — it's how I understand <em>light, time, and composition</em>. The same eye I use to frame a shot is what I bring to designing interfaces: intentional, balanced, unforgettable.</p>
@@ -749,9 +749,14 @@ if(apf){
 <script src="splashCursor.js"></script>
 <script>
   function startGallery() {
+    console.log('Checking Gallery Prep...', {
+      container: !!document.getElementById('gallery-container'),
+      initFn: !!window.initCircularGallery,
+      ogl: !!(window.ogl || window.OGL)
+    });
     const galleryContainer = document.getElementById('gallery-container');
-    if (galleryContainer && window.initCircularGallery) {
-      console.log('Initializing Gallery...');
+    if (galleryContainer && window.initCircularGallery && (window.ogl || window.OGL)) {
+      console.log('🚀 Initializing Gallery...');
       const items = [
         { image: 'Photos/1.jpg', text: 'FOCUS' },
         { image: 'Photos/2.jpg', text: 'GLOW' },
@@ -775,7 +780,7 @@ if(apf){
         font: 'bold 24px Courier Prime'
       });
     } else {
-      setTimeout(startGallery, 100);
+      setTimeout(startGallery, 200);
     }
   }
   window.addEventListener('load', startGallery);
