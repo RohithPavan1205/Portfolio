@@ -1,11 +1,5 @@
 
 (function() {
-  const OGL = window.ogl || window.OGL;
-  if (!OGL) {
-    console.error('OGL library not found');
-    return;
-  }
-
   function debounce(func, wait) {
     let timeout;
     return function (...args) {
@@ -33,16 +27,16 @@
     context.font = font;
     const metrics = context.measureText(text);
     const textWidth = Math.ceil(metrics.width);
-    const textHeight = Math.ceil(parseInt(font, 10) * 1.2);
-    canvas.width = textWidth + 20;
-    canvas.height = textHeight + 20;
+    const textHeight = Math.ceil(parseInt(font, 10) * 1.5);
+    canvas.width = Math.max(1, textWidth + 40);
+    canvas.height = Math.max(1, textHeight + 40);
     context.font = font;
     context.fillStyle = color;
     context.textBaseline = 'middle';
     context.textAlign = 'center';
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillText(text, canvas.width / 2, canvas.height / 2);
-    const texture = new OGL.Texture(gl, { generateMipmaps: false });
+    const texture = new window.ogl.Texture(gl, { generateMipmaps: false });
     texture.image = canvas;
     return { texture, width: canvas.width, height: canvas.height };
   }
@@ -60,8 +54,8 @@
     }
     createMesh() {
       const { texture, width, height } = createTextTexture(this.gl, this.text, this.font, this.textColor);
-      const geometry = new OGL.Plane(this.gl);
-      const program = new OGL.Program(this.gl, {
+      const geometry = new window.ogl.Plane(this.gl);
+      const program = new window.ogl.Program(this.gl, {
         vertex: `
           attribute vec3 position;
           attribute vec2 uv;
@@ -79,19 +73,19 @@
           varying vec2 vUv;
           void main() {
             vec4 color = texture2D(tMap, vUv);
-            if (color.a < 0.1) discard;
+            if (color.a < 0.05) discard;
             gl_FragColor = color;
           }
         `,
         uniforms: { tMap: { value: texture } },
         transparent: true
       });
-      this.mesh = new OGL.Mesh(this.gl, { geometry, program });
+      this.mesh = new window.ogl.Mesh(this.gl, { geometry, program });
       const aspect = width / height;
       const textHeight = this.plane.scale.y * 0.15;
       const textWidth = textHeight * aspect;
       this.mesh.scale.set(textWidth, textHeight, 1);
-      this.mesh.position.y = -this.plane.scale.y * 0.5 - textHeight * 0.5 - 0.05;
+      this.mesh.position.y = -this.plane.scale.y * 0.5 - textHeight * 0.5 - 0.1;
       this.mesh.setParent(this.plane);
     }
   }
@@ -134,10 +128,10 @@
       this.onResize();
     }
     createShader() {
-      const texture = new OGL.Texture(this.gl, {
+      const texture = new window.ogl.Texture(this.gl, {
         generateMipmaps: true
       });
-      this.program = new OGL.Program(this.gl, {
+      this.program = new window.ogl.Program(this.gl, {
         depthTest: false,
         depthWrite: false,
         vertex: `
@@ -152,7 +146,7 @@
           void main() {
             vUv = uv;
             vec3 p = position;
-            p.z = (sin(p.x * 4.0 + uTime) * 1.5 + cos(p.y * 2.0 + uTime) * 1.5) * (0.1 + uSpeed * 0.5);
+            p.z = (sin(p.x * 4.0 + uTime) * 1.5 + cos(p.y * 2.0 + uTime) * 1.5) * (0.1 + abs(uSpeed) * 0.5);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
           }
         `,
@@ -171,21 +165,17 @@
           
           void main() {
             vec2 ratio = vec2(
-              min((uPlaneSizes.x / uPlaneSizes.y) / max(0.001, uImageSizes.x / uImageSizes.y), 1.0),
-              min((uPlaneSizes.y / uPlaneSizes.x) / max(0.001, uImageSizes.y / uImageSizes.x), 1.0)
+              min((uPlaneSizes.x / uPlaneSizes.y) / (uImageSizes.x / uImageSizes.y), 1.0),
+              min((uPlaneSizes.y / uPlaneSizes.x) / (uImageSizes.y / uImageSizes.x), 1.0)
             );
             vec2 uv = vec2(
               vUv.x * ratio.x + (1.0 - ratio.x) * 0.5,
               vUv.y * ratio.y + (1.0 - ratio.y) * 0.5
             );
             vec4 color = texture2D(tMap, uv);
-            
             float d = roundedBoxSDF(vUv - 0.5, vec2(0.5 - uBorderRadius), uBorderRadius);
-            
-            float edgeSmooth = 0.002;
-            float alpha = 1.0 - smoothstep(-edgeSmooth, edgeSmooth, d);
-            
-            gl_FragColor = vec4(color.rgb, alpha);
+            float alpha = 1.0 - smoothstep(0.0, 0.01, d);
+            gl_FragColor = vec4(color.rgb, alpha * color.a);
           }
         `,
         uniforms: {
@@ -207,7 +197,7 @@
       };
     }
     createMesh() {
-      this.plane = new OGL.Mesh(this.gl, {
+      this.plane = new window.ogl.Mesh(this.gl, {
         geometry: this.geometry,
         program: this.program
       });
@@ -220,11 +210,10 @@
         renderer: this.renderer,
         text: this.text,
         textColor: this.textColor,
-        fontFamily: this.font
+        font: this.font
       });
     }
     update(scroll, direction) {
-      if (!this.plane) return;
       this.plane.position.x = this.x - scroll.current - this.extra;
 
       const x = this.plane.position.x;
@@ -269,9 +258,6 @@
       if (screen) this.screen = screen;
       if (viewport) {
         this.viewport = viewport;
-        if (this.plane.program.uniforms.uViewportSizes) {
-          this.plane.program.uniforms.uViewportSizes.value = [this.viewport.width, this.viewport.height];
-        }
       }
       this.scale = this.screen.height / 1500;
       this.plane.scale.y = (this.viewport.height * (900 * this.scale)) / this.screen.height;
@@ -285,33 +271,24 @@
   }
 
   class CircularGalleryApp {
-    constructor(
-      container,
-      {
-        items,
-        bend,
-        textColor = '#ffffff',
-        borderRadius = 0,
-        font = 'bold 30px Figtree',
-        scrollSpeed = 2,
-        scrollEase = 0.05
-      } = {}
-    ) {
+    constructor(container, options = {}) {
       this.container = container;
-      this.scrollSpeed = scrollSpeed;
-      this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
+      this.options = options;
+      this.scrollSpeed = options.scrollSpeed || 2;
+      this.scroll = { ease: options.scrollEase || 0.05, current: 0, target: 0, last: 0 };
       this.onCheckDebounce = debounce(this.onCheck.bind(this), 200);
+      
       this.createRenderer();
       this.createCamera();
       this.createScene();
       this.onResize();
       this.createGeometry();
-      this.createMedias(items, bend, textColor, borderRadius, font);
+      this.createMedias();
       this.update();
       this.addEventListeners();
     }
     createRenderer() {
-      this.renderer = new OGL.Renderer({
+      this.renderer = new window.ogl.Renderer({
         alpha: true,
         antialias: true,
         dpr: Math.min(window.devicePixelRatio || 1, 2)
@@ -321,27 +298,22 @@
       this.container.appendChild(this.gl.canvas);
     }
     createCamera() {
-      this.camera = new OGL.Camera(this.gl);
+      this.camera = new window.ogl.Camera(this.gl);
       this.camera.fov = 45;
       this.camera.position.z = 20;
     }
     createScene() {
-      this.scene = new OGL.Transform();
+      this.scene = new window.ogl.Transform();
     }
     createGeometry() {
-      this.planeGeometry = new OGL.Plane(this.gl, {
+      this.planeGeometry = new window.ogl.Plane(this.gl, {
         heightSegments: 50,
         widthSegments: 100
       });
     }
-    createMedias(items, bend = 1, textColor, borderRadius, font) {
-      const defaultItems = [
-        { image: `https://picsum.photos/seed/1/800/600?grayscale`, text: 'Bridge' },
-        { image: `https://picsum.photos/seed/2/800/600?grayscale`, text: 'Desk Setup' },
-        { image: `https://picsum.photos/seed/3/800/600?grayscale`, text: 'Waterfall' }
-      ];
-      const galleryItems = items && items.length ? items : defaultItems;
-      this.mediasImages = galleryItems.concat(galleryItems);
+    createMedias() {
+      const items = this.options.items || [];
+      this.mediasImages = items.concat(items);
       this.medias = this.mediasImages.map((data, index) => {
         return new Media({
           geometry: this.planeGeometry,
@@ -354,10 +326,10 @@
           screen: this.screen,
           text: data.text,
           viewport: this.viewport,
-          bend,
-          textColor,
-          borderRadius,
-          font
+          bend: this.options.bend || 3,
+          textColor: this.options.textColor || '#ffffff',
+          borderRadius: this.options.borderRadius || 0,
+          font: this.options.font || 'bold 30px monospace'
         });
       });
     }
@@ -369,7 +341,7 @@
     onTouchMove(e) {
       if (!this.isDown) return;
       const x = e.touches ? e.touches[0].clientX : e.clientX;
-      const distance = (this.start - x) * (this.scrollSpeed * 0.025);
+      const distance = (this.start - x) * (this.scrollSpeed * 0.02);
       this.scroll.target = this.scroll.position + distance;
     }
     onTouchUp() {
@@ -378,7 +350,7 @@
     }
     onWheel(e) {
       const delta = e.deltaY || e.wheelDelta || e.detail;
-      this.scroll.target += (delta > 0 ? this.scrollSpeed : -this.scrollSpeed) * 0.2;
+      this.scroll.target += (delta > 0 ? this.scrollSpeed : -this.scrollSpeed) * 0.1;
       this.onCheckDebounce();
     }
     onCheck() {
@@ -389,10 +361,9 @@
       this.scroll.target = this.scroll.target < 0 ? -item : item;
     }
     onResize() {
-      if (!this.container) return;
       this.screen = {
-        width: this.container.clientWidth || window.innerWidth,
-        height: this.container.clientHeight || 600
+        width: this.container.clientWidth,
+        height: this.container.clientHeight
       };
       this.renderer.setSize(this.screen.width, this.screen.height);
       this.camera.perspective({
@@ -417,39 +388,23 @@
       this.raf = window.requestAnimationFrame(this.update.bind(this));
     }
     addEventListeners() {
-      this.boundOnResize = this.onResize.bind(this);
-      this.boundOnWheel = this.onWheel.bind(this);
-      this.boundOnTouchDown = this.onTouchDown.bind(this);
-      this.boundOnTouchMove = this.onTouchMove.bind(this);
-      this.boundOnTouchUp = this.onTouchUp.bind(this);
-      window.addEventListener('resize', this.boundOnResize);
-      window.addEventListener('mousewheel', this.boundOnWheel, { passive: false });
-      window.addEventListener('wheel', this.boundOnWheel, { passive: false });
-      this.container.addEventListener('mousedown', this.boundOnTouchDown);
-      window.addEventListener('mousemove', this.boundOnTouchMove);
-      window.addEventListener('mouseup', this.boundOnTouchUp);
-      this.container.addEventListener('touchstart', this.boundOnTouchDown);
-      window.addEventListener('touchmove', this.boundOnTouchMove);
-      window.addEventListener('touchend', this.boundOnTouchUp);
-    }
-    destroy() {
-      window.cancelAnimationFrame(this.raf);
-      window.removeEventListener('resize', this.boundOnResize);
-      window.removeEventListener('mousewheel', this.boundOnWheel);
-      window.removeEventListener('wheel', this.boundOnWheel);
-      this.container.removeEventListener('mousedown', this.boundOnTouchDown);
-      window.removeEventListener('mousemove', this.boundOnTouchMove);
-      window.removeEventListener('mouseup', this.boundOnTouchUp);
-      this.container.removeEventListener('touchstart', this.boundOnTouchDown);
-      window.removeEventListener('touchmove', this.boundOnTouchMove);
-      window.removeEventListener('touchend', this.boundOnTouchUp);
-      if (this.renderer && this.renderer.gl && this.renderer.gl.canvas.parentNode) {
-        this.renderer.gl.canvas.parentNode.removeChild(this.renderer.gl.canvas);
-      }
+      window.addEventListener('resize', this.onResize.bind(this));
+      this.container.addEventListener('mousewheel', this.onWheel.bind(this), { passive: false });
+      this.container.addEventListener('wheel', this.onWheel.bind(this), { passive: false });
+      this.container.addEventListener('mousedown', this.onTouchDown.bind(this));
+      window.addEventListener('mousemove', this.onTouchMove.bind(this));
+      window.addEventListener('mouseup', this.onTouchUp.bind(this));
+      this.container.addEventListener('touchstart', this.onTouchDown.bind(this));
+      window.addEventListener('touchmove', this.onTouchMove.bind(this));
+      window.addEventListener('touchend', this.onTouchUp.bind(this));
     }
   }
 
   window.initCircularGallery = function(container, options) {
-      return new CircularGalleryApp(container, options);
+    if (!window.ogl) {
+        console.error('OGL not loaded yet');
+        return;
+    }
+    return new CircularGalleryApp(container, options);
   };
 })();

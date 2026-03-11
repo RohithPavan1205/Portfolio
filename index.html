@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow+Condensed:wght@100;200;300;400;500;700;900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ogl@0.0.86/dist/ogl.umd.js"></script>
+<script src="https://unpkg.com/ogl"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -517,7 +517,7 @@ footer{padding:32px 64px;border-top:1px solid var(--line);display:flex;align-ite
   <div class="section-wrap">
     <div class="sec-label fade-up">Through The Lens</div>
     <h2 class="sec-title fade-up">VISUAL<br>CRAFT</h2>
-    <div id="gallery-container" style="height: 600px; width: 100%; position: relative; margin-bottom: 20px; z-index: 100;" class="fade-up"></div>
+    <div id="gallery-container" style="height: 600px; width: 100%; position: relative; margin-bottom: 20px; z-index: 100; opacity: 1;"></div>
     
     <div class="photo-intro-wrapper">
       <p class="photo-intro-text fade-up">Photography is not a hobby — it's how I understand <em>light, time, and composition</em>. The same eye I use to frame a shot is what I bring to designing interfaces: intentional, balanced, unforgettable.</p>
@@ -748,9 +748,10 @@ if(apf){
 <script src="circularGallery.js"></script>
 <script src="splashCursor.js"></script>
 <script>
-  window.addEventListener('DOMContentLoaded', () => {
+  function startGallery() {
     const galleryContainer = document.getElementById('gallery-container');
-    if (galleryContainer) {
+    if (galleryContainer && window.initCircularGallery) {
+      console.log('Initializing Gallery...');
       const items = [
         { image: 'Photos/1.jpg', text: 'MOMENT' },
         { image: 'Photos/13.jpg', text: 'PERSPECTIVE' },
@@ -760,7 +761,7 @@ if(apf){
         { image: 'Photos/file_00000000a11861f885ca5ab70af88c81.jpg', text: 'FRAME' },
         { image: 'Photos/file_000000002dec6230b6c8c13dab69eb2c.png', text: 'VISION' }
       ];
-      initCircularGallery(galleryContainer, {
+      window.initCircularGallery(galleryContainer, {
         items: items,
         bend: 3,
         textColor: '#c8852a',
@@ -769,8 +770,11 @@ if(apf){
         scrollEase: 0.12,
         font: 'bold 24px Courier Prime'
       });
+    } else {
+      setTimeout(startGallery, 100);
     }
-  });
+  }
+  window.addEventListener('load', startGallery);
 </script>
 </body>
 </html>
