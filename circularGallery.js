@@ -38,12 +38,11 @@
       this.wrapper.style.justifyContent = 'center';
       this.container.appendChild(this.wrapper);
 
-      // Create Items (Multiply for infinite loop feel)
-      this.displayItems = [...this.items, ...this.items, ...this.items];
+      // Create Items
+      this.displayItems = this.items;
       this.cards = [];
-
-      const radius = 800; // Curve radius
-      const spacing = 35; // Angle between items
+      this.spacing = 40; // Angle between items
+      this.totalRange = this.displayItems.length * this.spacing;
 
       this.displayItems.forEach((item, i) => {
         const card = document.createElement('div');
@@ -55,9 +54,8 @@
         card.style.border = '1px solid rgba(200,133,42,0.2)';
         card.style.backgroundColor = '#0f0e0b';
         card.style.userSelect = 'none';
-        card.style.pointerEvents = 'none'; // Keep drag smooth
+        card.style.pointerEvents = 'none';
 
-        // Image
         const img = document.createElement('img');
         img.src = item.image;
         img.style.width = '100%';
@@ -67,7 +65,6 @@
         img.style.filter = 'grayscale(20%)';
         card.appendChild(img);
 
-        // Text
         if (item.text) {
           const txt = document.createElement('div');
           txt.textContent = item.text;
@@ -85,7 +82,7 @@
         this.wrapper.appendChild(card);
         this.cards.push({
           el: card,
-          baseAngle: (i - Math.floor(this.displayItems.length / 2)) * spacing
+          baseAngle: i * this.spacing
         });
       });
 
@@ -94,13 +91,11 @@
     }
 
     addEventListeners() {
-      // Wheel
       this.container.addEventListener('wheel', (e) => {
         e.preventDefault();
         this.targetRotation -= e.deltaY * 0.05 * this.scrollSpeed;
       }, { passive: false });
 
-      // Drag
       this.container.addEventListener('mousedown', (e) => {
         this.isDown = true;
         this.container.style.cursor = 'grabbing';
@@ -119,7 +114,6 @@
         this.container.style.cursor = 'grab';
       });
 
-      // Touch
       this.container.addEventListener('touchstart', (e) => {
         this.isDown = true;
         this.startX = e.touches[0].clientX;
@@ -141,28 +135,29 @@
       this.rotation += (this.targetRotation - this.rotation) * this.ease;
 
       const radius = 700;
-      const bendFactor = this.bend * 15;
 
       this.cards.forEach((card) => {
-        const totalAngle = card.baseAngle + this.rotation;
+        let totalAngle = card.baseAngle + this.rotation;
+        
+        // Infinite Loop Logic: Wrap angles into a visible range
+        // We want to keep angles roughly centered around 0 for rendering
+        totalAngle = ((totalAngle + this.totalRange / 2) % this.totalRange + this.totalRange) % this.totalRange - this.totalRange / 2;
+
         const rad = totalAngle * (Math.PI / 180);
         
-        // Calculate position on an arch
         const x = Math.sin(rad) * radius;
         const z = (Math.cos(rad) - 1) * radius;
-        const y = Math.abs(x) * (this.bend * 0.1); // Add the arch lift
+        const y = Math.abs(x) * (this.bend * 0.1);
 
-        // Smooth rotation to face viewer
         const rotY = totalAngle;
         const rotZ = totalAngle * (this.bend * 0.05);
 
         card.el.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
         
-        // Dynamic opacity based on distance from center
         const distance = Math.abs(totalAngle);
         const opacity = Math.max(0, 1 - (distance / 90));
         card.el.style.opacity = opacity;
-        card.el.style.visibility = opacity > 0 ? 'visible' : 'hidden';
+        card.el.style.visibility = opacity > 0.01 ? 'visible' : 'hidden';
       });
 
       requestAnimationFrame(this.update.bind(this));
