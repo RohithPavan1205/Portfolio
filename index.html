@@ -70,9 +70,20 @@ body {
   transition: background 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* HIDE SYSTEM CURSOR */
+/* HIDE SYSTEM CURSOR & SHOW LEAD DOT */
 body, a, button, .project-card, .skill-pill, .stat-cell, .cert-tile, .achieve-tile, .exp-card {
   cursor: none !important;
+}
+
+#cursor-dot {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  background: var(--amber);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10006; /* Above the splash canvas */
+  box-shadow: 0 0 10px var(--amber);
 }
 
 
@@ -606,6 +617,7 @@ footer{padding:32px 64px;border-top:1px solid var(--line);display:flex;align-ite
 <body>
 
 <!-- CUSTOM CURSOR -->
+<div id="cursor-dot"></div>
 
 <!-- LOADER -->
 <div id="loader">
@@ -1194,8 +1206,12 @@ function initProjectModal() {
   window.onclick = (e) => { if(e.target == modal) close.onclick(); };
 }
 
-/* THEME & INTERFACE */
 function initInterface() {
+  const dot = document.getElementById('cursor-dot');
+  document.addEventListener('mousemove', e => {
+    gsap.to(dot, { x: e.clientX - 3, y: e.clientY - 3, duration: 0.1 });
+  });
+
   document.querySelectorAll('a, button, .project-card, .skill-pill').forEach(el => {
     el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
     el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));

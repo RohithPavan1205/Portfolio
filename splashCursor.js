@@ -1,24 +1,27 @@
 function initSplashCursor(options = {}) {
     const config = Object.assign({
         SIM_RESOLUTION: 128,
-        DYE_RESOLUTION: 1440,
+        DYE_RESOLUTION: 1024,
         CAPTURE_RESOLUTION: 512,
-        DENSITY_DISSIPATION: 3.5,
-        VELOCITY_DISSIPATION: 2,
-        PRESSURE: 0.1,
+        DENSITY_DISSIPATION: 2.5,
+        VELOCITY_DISSIPATION: 1.5,
+        PRESSURE: 0.2,
         PRESSURE_ITERATIONS: 20,
-        CURL: 3,
-        SPLAT_RADIUS: 0.25,
-        SPLAT_FORCE: 6000,
+        CURL: 5,
+        SPLAT_RADIUS: 0.35,
+        SPLAT_FORCE: 8000,
         SHADING: true,
-        COLOR_UPDATE_SPEED: 8,
+        COLOR_UPDATE_SPEED: 10,
         BACK_COLOR: { r: 0, g: 0, b: 0 },
         TRANSPARENT: true,
         PAUSED: false
     }, options);
 
     const canvas = document.getElementById('fluid');
-    if (!canvas) return;
+    if (!canvas) {
+        console.error("Fluid canvas not found");
+        return;
+    }
 
     let isActive = true;
 
@@ -36,12 +39,6 @@ function initSplashCursor(options = {}) {
     }
 
     let pointers = [new pointerPrototype()];
-
-    const { gl, ext } = getWebGLContext(canvas);
-    if (!ext.supportLinearFiltering) {
-        config.DYE_RESOLUTION = 256;
-        config.SHADING = false;
-    }
 
     function getWebGLContext(canvas) {
         const params = {
@@ -121,6 +118,8 @@ function initSplashCursor(options = {}) {
         const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
         return status === gl.FRAMEBUFFER_COMPLETE;
     }
+
+    const { gl, ext } = getWebGLContext(canvas);
 
     function compileShader(type, source, keywords) {
         source = addKeywords(source, keywords);
@@ -823,27 +822,15 @@ function initSplashCursor(options = {}) {
 
     function generateColor() {
         // Theme Colors: Gold (#C5A021) and Yellow (#FFEE00)
-        // Gold: 0.13 H, Yellow: 0.16 H
-        const hues = [0.13, 0.15, 0.17];
-        let h = hues[Math.floor(Math.random() * hues.length)];
-        let c = HSVtoRGB(h, 0.9, 1.0);
-        c.r *= 0.25; c.g *= 0.25; c.b *= 0.25;
-        return c;
-    }
-
-    function HSVtoRGB(h, s, v) {
-        let r, g, b, i, f, p, q, t;
-        i = Math.floor(h * 6); f = h * 6 - i;
-        p = v * (1 - s); q = v * (1 - f * s); t = v * (1 - (1 - f) * s);
-        switch (i % 6) {
-            case 0: r = v; g = t; b = p; break;
-            case 1: r = q; g = v; b = p; break;
-            case 2: r = p; g = v; b = t; break;
-            case 3: r = p; g = q; b = v; break;
-            case 4: r = t; g = p; b = v; break;
-            case 5: r = v; g = p; b = q; break;
-        }
-        return { r, g, b };
+        // Gold: r:197, g:160, b:33 -> 0.77, 0.63, 0.13
+        // Yellow: r:255, g:238, b:0 -> 1.0, 0.93, 0.0
+        const palette = [
+            { r: 0.77, g: 0.63, b: 0.13 }, // Gold
+            { r: 1.0, g: 0.93, b: 0.0 },   // Yellow
+            { r: 0.85, g: 0.75, b: 0.05 }  // Mixed
+        ];
+        let c = palette[Math.floor(Math.random() * palette.length)];
+        return { r: c.r * 2.0, g: c.g * 2.0, b: c.b * 2.0 };
     }
 
     function wrap(value, min, max) {
@@ -934,6 +921,6 @@ function initSplashCursor(options = {}) {
     updateFrame();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+window.addEventListener('load', () => {
     initSplashCursor();
 });
