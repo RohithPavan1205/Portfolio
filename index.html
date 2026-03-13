@@ -1088,19 +1088,48 @@ function initThreeHero() {
     uniforms: uniforms,
     vertexShader: `void main() { gl_Position = vec4(position, 1.0); }`,
     fragmentShader: `
-      uniform vec2 u_resolution;
-      uniform float u_time;
-      uniform vec2 u_mouse;
-      uniform vec3 u_color;
-      void main() {
-        vec2 st = gl_FragCoord.xy / u_resolution.xy;
-        st.x *= u_resolution.x / u_resolution.y;
-        float d = distance(st, vec2(0.5) + u_mouse * 0.1);
-        float smoke = sin(st.x * 6.0 + u_time * 0.4) * cos(st.y * 6.0 + u_time * 0.3);
-        smoke += sin(st.y * 4.0 - u_time * 0.2) * cos(st.x * 5.0 + u_time * 0.4);
-        vec3 color = u_color * (0.08 / d) * (1.2 + smoke * 0.3);
-        gl_FragColor = vec4(color * 0.4, 1.0);
-      }
+        precision highp float;
+        uniform vec2 u_resolution;
+        uniform float u_time;
+        uniform vec2 u_mouse;
+        uniform vec3 u_color;
+
+        float hash(vec2 p) {
+          p = fract(p * vec2(123.34, 456.21));
+          p += dot(p, p + 45.32);
+          return fract(p.x * p.y);
+        }
+
+        void main() {
+          vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+          uv.x *= u_resolution.x / u_resolution.y;
+
+          // Subtle parallax from mouse
+          vec2 shiftedUv = uv + u_mouse * 0.05;
+
+          // Create multiple layers of very fine golden dust
+          float particles = 0.0;
+          for(float i=1.0; i<4.0; i++) {
+            vec2 p_uv = shiftedUv * (2.0 + i);
+            p_uv.y += u_time * (0.1 / i);
+            p_uv.x += sin(u_time * 0.2 + i) * 0.1;
+
+            vec2 ip = floor(p_uv);
+            vec2 fp = fract(p_uv);
+
+            if(hash(ip) > 0.98) {
+              float dist = length(fp - 0.5);
+              particles += smoothstep(0.15, 0.0, dist) * (0.4 / i);
+            }
+          }
+
+          // Faint background glow follow
+          float d = distance(uv, vec2(0.5) + u_mouse * 0.1);
+          float glow = 0.02 / (d + 0.5);
+
+          vec3 finalColor = u_color * (particles + glow);
+          gl_FragColor = vec4(finalColor, 1.0);
+        }
     `,
     transparent: true
   });
