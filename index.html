@@ -72,20 +72,9 @@ body {
   transition: background 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* HIDE SYSTEM CURSOR & SHOW LEAD DOT */
+/* HIDE SYSTEM CURSOR */
 body, a, button, .project-card, .skill-pill, .stat-cell, .cert-tile, .achieve-tile, .exp-card {
   cursor: none !important;
-}
-
-#cursor-dot {
-  position: fixed;
-  width: 6px;
-  height: 6px;
-  background: var(--amber);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 10006; /* Above the splash canvas */
-  box-shadow: 0 0 10px var(--amber);
 }
 
 
@@ -619,7 +608,6 @@ footer{padding:32px 64px;border-top:1px solid var(--line);display:flex;align-ite
 <body>
 
 <!-- CUSTOM CURSOR -->
-<div id="cursor-dot"></div>
 
 <!-- LOADER -->
 <div id="loader">
@@ -634,7 +622,7 @@ footer{padding:32px 64px;border-top:1px solid var(--line);display:flex;align-ite
 <div id="bar-bot"></div>
 <div id="grain"></div>
 <!-- FLUID CURSOR CANVAS -->
-<div style="position: fixed; top: 0; left: 0; z-index: 10005; pointer-events: none; width: 100%; height: 100%;">
+<div style="position: fixed; top: 0; left: 0; z-index: 10000; pointer-events: none; width: 100%; height: 100%;">
   <canvas id="fluid" style="width: 100vw; height: 100vh; display: block;"></canvas>
 </div>
 
@@ -1123,11 +1111,8 @@ function initThreeHero() {
             }
           }
 
-          // Faint background glow follow
-          float d = distance(uv, vec2(0.5) + u_mouse * 0.1);
-          float glow = 0.02 / (d + 0.5);
-
-          vec3 finalColor = u_color * (particles + glow);
+          // No background glow follow to keep it clean
+          vec3 finalColor = u_color * particles;
           gl_FragColor = vec4(finalColor, 1.0);
         }
     `,
@@ -1238,11 +1223,6 @@ function initProjectModal() {
 }
 
 function initInterface() {
-  const dot = document.getElementById('cursor-dot');
-  document.addEventListener('mousemove', e => {
-    gsap.to(dot, { x: e.clientX - 3, y: e.clientY - 3, duration: 0.1 });
-  });
-
   document.querySelectorAll('a, button, .project-card, .skill-pill').forEach(el => {
     el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
     el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
