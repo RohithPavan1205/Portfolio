@@ -3,13 +3,13 @@ function initSplashCursor(options = {}) {
     SIM_RESOLUTION: options.SIM_RESOLUTION || 128,
     DYE_RESOLUTION: options.DYE_RESOLUTION || 1440,
     CAPTURE_RESOLUTION: options.CAPTURE_RESOLUTION || 512,
-    DENSITY_DISSIPATION: options.DENSITY_DISSIPATION || 7.0, // Fades very quickly
-    VELOCITY_DISSIPATION: options.VELOCITY_DISSIPATION || 3.5, // Slows down very quickly
+    DENSITY_DISSIPATION: options.DENSITY_DISSIPATION || 12.0, // Fades almost instantly
+    VELOCITY_DISSIPATION: options.VELOCITY_DISSIPATION || 5.0,  // Stops moving immediately
     PRESSURE: options.PRESSURE || 0.1,
     PRESSURE_ITERATIONS: options.PRESSURE_ITERATIONS || 20,
     CURL: options.CURL || 3,
-    SPLAT_RADIUS: options.SPLAT_RADIUS || 0.04, // Very small, subtle trail
-    SPLAT_FORCE: options.SPLAT_FORCE || 2500,  // Very gentle splat
+    SPLAT_RADIUS: options.SPLAT_RADIUS || 0.015, // Microscopic trails
+    SPLAT_FORCE: options.SPLAT_FORCE || 1000,   // Barely noticeable push
     SHADING: options.SHADING !== undefined ? options.SHADING : true,
     COLOR_UPDATE_SPEED: options.COLOR_UPDATE_SPEED || 10,
     BACK_COLOR: options.BACK_COLOR || { r: 0, g: 0, b: 0 },
@@ -820,9 +820,9 @@ function initSplashCursor(options = {}) {
     
     // Mix gold and yellow with subtle, low intensity
     return {
-      r: (gold.r * (1 - random) + yellow.r * random) * 0.35,
-      g: (gold.g * (1 - random) + yellow.g * random) * 0.35,
-      b: (gold.b * (1 - random) + yellow.b * random) * 0.35
+      r: (gold.r * (1 - random) + yellow.r * random) * 0.15,
+      g: (gold.g * (1 - random) + yellow.g * random) * 0.15,
+      b: (gold.b * (1 - random) + yellow.b * random) * 0.15
     };
   }
 
