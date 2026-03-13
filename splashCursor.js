@@ -3,13 +3,13 @@ function initSplashCursor(options = {}) {
     SIM_RESOLUTION: options.SIM_RESOLUTION || 128,
     DYE_RESOLUTION: options.DYE_RESOLUTION || 1440,
     CAPTURE_RESOLUTION: options.CAPTURE_RESOLUTION || 512,
-    DENSITY_DISSIPATION: options.DENSITY_DISSIPATION || 3.5,
-    VELOCITY_DISSIPATION: options.VELOCITY_DISSIPATION || 2,
+    DENSITY_DISSIPATION: options.DENSITY_DISSIPATION || 4.5, // Fades faster
+    VELOCITY_DISSIPATION: options.VELOCITY_DISSIPATION || 2.5, // Slows down faster
     PRESSURE: options.PRESSURE || 0.1,
     PRESSURE_ITERATIONS: options.PRESSURE_ITERATIONS || 20,
     CURL: options.CURL || 3,
-    SPLAT_RADIUS: options.SPLAT_RADIUS || 0.2,
-    SPLAT_FORCE: options.SPLAT_FORCE || 6000,
+    SPLAT_RADIUS: options.SPLAT_RADIUS || 0.15, // Smaller splurge
+    SPLAT_FORCE: options.SPLAT_FORCE || 4500,  // Gentler movement
     SHADING: options.SHADING !== undefined ? options.SHADING : true,
     COLOR_UPDATE_SPEED: options.COLOR_UPDATE_SPEED || 10,
     BACK_COLOR: options.BACK_COLOR || { r: 0, g: 0, b: 0 },
@@ -813,16 +813,16 @@ function initSplashCursor(options = {}) {
   }
 
   function generateColor() {
-    // Theme consistency: Bright Gold and Yellow palette
-    const gold = { r: 1.0, g: 0.8, b: 0.1 };
-    const yellow = { r: 1.0, g: 1.0, b: 0.0 };
+    // Theme consistency: Elegant Gold and Yellow palette
+    const gold = { r: 0.8, g: 0.65, b: 0.2 };
+    const yellow = { r: 1.0, g: 0.9, b: 0.0 };
     const random = Math.random();
     
-    // Mix gold and yellow with full intensity
+    // Mix gold and yellow with slightly softened intensity
     return {
-      r: (gold.r * (1 - random) + yellow.r * random),
-      g: (gold.g * (1 - random) + yellow.g * random),
-      b: (gold.b * (1 - random) + yellow.b * random)
+      r: (gold.r * (1 - random) + yellow.r * random) * 0.7,
+      g: (gold.g * (1 - random) + yellow.g * random) * 0.7,
+      b: (gold.b * (1 - random) + yellow.b * random) * 0.7
     };
   }
 
