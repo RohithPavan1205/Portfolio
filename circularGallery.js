@@ -51,19 +51,42 @@
         card.style.height = '450px';
         card.style.borderRadius = (this.options.borderRadius * 1000) + 'px';
         card.style.overflow = 'hidden';
-        card.style.border = '1px solid rgba(200,133,42,0.2)';
+        card.style.border = '1px solid rgba(255, 238, 0, 0.2)';
         card.style.backgroundColor = '#0f0e0b';
         card.style.userSelect = 'none';
-        card.style.pointerEvents = 'none';
+        card.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease';
+        card.style.pointerEvents = 'auto'; // Enable pointer events for hover
+
+        const imgGroup = document.createElement('div');
+        imgGroup.style.width = '100%';
+        imgGroup.style.height = '85%';
+        imgGroup.style.overflow = 'hidden';
+        imgGroup.style.transition = 'transform 0.5s ease';
+        card.appendChild(imgGroup);
 
         const img = document.createElement('img');
         img.src = item.image;
         img.style.width = '100%';
-        img.style.height = '85%';
+        img.style.height = '100%';
         img.style.objectFit = 'cover';
         img.style.display = 'block';
         img.style.filter = 'grayscale(20%)';
-        card.appendChild(img);
+        img.style.transition = 'transform 0.5s ease, filter 0.5s ease';
+        imgGroup.appendChild(img);
+
+        card.addEventListener('mouseenter', () => {
+          img.style.transform = 'scale(1.1)';
+          img.style.filter = 'grayscale(0%)';
+          card.style.borderColor = 'rgba(255, 238, 0, 0.6)';
+          card.style.zIndex = '1000';
+        });
+
+        card.addEventListener('mouseleave', () => {
+          img.style.transform = 'scale(1)';
+          img.style.filter = 'grayscale(20%)';
+          card.style.borderColor = 'rgba(255, 238, 0, 0.2)';
+          card.style.zIndex = '1';
+        });
 
         if (item.text) {
           const txt = document.createElement('div');
@@ -73,7 +96,7 @@
           txt.style.alignItems = 'center';
           txt.style.justifyContent = 'center';
           txt.style.font = this.options.font || 'bold 20px Courier Prime';
-          txt.style.color = this.options.textColor || '#c8852a';
+          txt.style.color = this.options.textColor || '#ffee00';
           txt.style.letterSpacing = '0.1em';
           txt.style.backgroundColor = 'rgba(0,0,0,0.4)';
           card.appendChild(txt);

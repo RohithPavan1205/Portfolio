@@ -12,7 +12,7 @@ function initSplashCursor(options = {}) {
         SPLAT_FORCE: 6000,
         SHADING: true,
         COLOR_UPDATE_SPEED: 10,
-        BACK_COLOR: { r: 0.5, g: 0, b: 0 },
+        BACK_COLOR: { r: 0, g: 0, b: 0 },
         TRANSPARENT: true,
         PAUSED: false
     }, options);
@@ -866,18 +866,9 @@ function initSplashCursor(options = {}) {
 
     function generateColor() {
         const palette = [
-            // Golds
-            { r: 255/255, g: 215/255, b: 0/255 },   // Gold
-            { r: 218/255, g: 165/255, b: 32/255 },  // Goldenrod
-            { r: 184/255, g: 134/255, b: 11/255 },  // Dark Goldenrod
-            // Ambers
-            { r: 255/255, g: 191/255, b: 0/255 },   // Amber
-            { r: 255/255, g: 126/255, b: 0/255 },   // Amber (SAE/ECE)
-            { r: 200/255, g: 133/255, b: 42/255 },  // Custom Theme Amber
-            // Dark Oranges
-            { r: 255/255, g: 140/255, b: 0/255 },   // Dark Orange
-            { r: 204/255, g: 85/255, b: 0/255 },    // Burnt Orange
-            { r: 224/255, g: 92/255, b: 26/255 }    // Fire
+            { r: 255/255, g: 238/255, b: 0/255 },   // Luxury Yellow
+            { r: 255/255, g: 215/255, b: 0/255 },   // Gold Yellow
+            { r: 255/255, g: 255/255, b: 100/255 }  // Bright Pale Yellow
         ];
         let base = palette[Math.floor(Math.random() * palette.length)];
         let c = { r: base.r, g: base.g, b: base.b };
