@@ -1,0 +1,102 @@
+================================================================================
+PROJECT: AIRLIVE — Desktop Live Streaming Application
+================================================================================
+
+SHORT VERSION (Portfolio Summary)
+----------------------------------
+AirLive is a feature-rich desktop live streaming application built with Qt/QML
+and Qt Design Studio, inspired by OBS Studio. It delivers a premium dark neon UI
+for streamers and content creators on Windows/macOS/Linux.
+
+Tech Stack: Qt 6, QML, Qt Design Studio, C++
+Category: Desktop Application | Multimedia & Broadcasting
+
+Key Highlights:
+• Multi-source scene composition (camera, screen capture, media, browser)
+• Dark neon UI with professional broadcast aesthetics
+• Real-time audio/video mixing and monitoring
+• Stream to multiple platforms simultaneously (YouTube, Twitch, etc.)
+• Built with Qt Quick for GPU-accelerated, fluid animations
+
+--------------------------------------------------------------------------------
+
+DETAILED VERSION
+--------------------------------------------------------------------------------
+
+OVERVIEW
+--------
+AirLive is a fully custom desktop live streaming application modeled after OBS
+Studio (Open Broadcaster Software). Built using Qt 6 and QML with Qt Design
+Studio, it targets streamers, content creators, educators, and live event
+broadcasters who want a professional-grade tool with a sleek, modern dark neon
+interface. The application is cross-platform, targeting Windows, macOS, and Linux.
+
+PROBLEM SOLVED
+--------------
+Most open-source streaming tools like OBS have dated UIs and steep learning
+curves. AirLive aims to provide the same power with a polished, intuitive
+interface designed with a premium dark neon aesthetic, making it approachable
+for new creators while retaining full power for professionals.
+
+CORE FEATURES
+-------------
+1. Scene Management
+   - Multiple scenes with drag-and-drop source arrangement
+   - Scene transitions (fade, cut, stinger)
+   - Scene collections for different streaming setups
+
+2. Source System
+   - Display/Window Capture
+   - Webcam / Video Capture Device
+   - Image, Image Slideshow
+   - Media Source (video/audio files)
+   - Browser Source
+   - Text / Graphics Overlay
+
+3. Audio Mixer
+   - Multi-track audio monitoring
+   - Per-source volume control with visual meters
+   - Audio filters (noise suppression, compressor, EQ)
+
+4. Stream & Record
+   - RTMP/RTMPS streaming to YouTube, Twitch, Facebook, and custom servers
+   - Local recording in MP4/MKV formats
+   - Configurable bitrate, resolution, and encoder (x264, NVENC, QuickSync)
+
+5. UI/UX — Dark Neon Design
+   - Built entirely in QML with Qt Design Studio
+   - Dark background with vibrant neon accent colors
+   - Smooth animations, hover states, and transitions
+   - Dockable panels and resizable layouts
+
+6. Settings & Configuration
+   - Stream key management
+   - Hotkey binding for scene switching, start/stop
+   - Auto-reconnect on stream failure
+
+TECHNOLOGY STACK
+----------------
+Layer               Technology
+------------------  ----------------------------
+UI Framework        Qt Quick (QML) 6.x
+Design Tool         Qt Design Studio
+Backend Logic       C++ with Qt Core/Multimedia
+Video Pipeline      Qt Multimedia, FFmpeg
+Audio Processing    Qt Audio, PortAudio
+Build System        CMake
+Platform Support    Windows 10+, macOS 12+, Linux
+
+ARCHITECTURE
+------------
+- MVC-based Qt architecture with QML frontend and C++ backend
+- QAbstractListModel for scene/source data binding
+- Signal/Slot system for real-time audio/video event handling
+- Separate threads for capture, encoding, and streaming pipelines
+- Qt Design Studio used for component design and prototyping
+
+STATUS
+------
+In active development — Core scene management and UI completed.
+Audio mixer and streaming pipeline in progress.
+
+================================================================================

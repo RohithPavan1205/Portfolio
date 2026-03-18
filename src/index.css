@@ -1,5 +1,38 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow+Condensed:wght@100;200;300;400;500;700;900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Outfit:wght@100;300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow+Condensed:wght@100;200;300;400;500;700;900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Outfit:wght@100;300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap');
 @import "tailwindcss";
+
+
+
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes gradient-rotate {
+  from {
+    --gradient-angle: 0deg;
+  }
+  to {
+    --gradient-angle: 360deg;
+  }
+}
+
+.gradient-border-component {
+  position: relative;
+}
+.gradient-border-auto {
+  animation: gradient-rotate var(--animation-duration, 5s) linear infinite;
+}
+.gradient-border-hover:hover {
+  animation: gradient-rotate var(--animation-duration, 5s) linear infinite;
+}
+.gradient-border-stop-hover {
+  animation: gradient-rotate var(--animation-duration, 5s) linear infinite;
+}
+.gradient-border-stop-hover:hover {
+  animation-play-state: paused;
+}
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -7,14 +40,14 @@ html{scroll-behavior:smooth;}
   --black: #050505;
   --coal: #0a0a0a;
   --ember: #121212;
-  --amber: #C5A021; /* Muted Luxury Gold */
+  --amber: #C5A021;
   --gold-bright: #E5C158;
   --gold-deep: #A67C00;
   --cream: #E8E2D0;
-  --sand: #A09D94;
-  --chalk: #D1CEC5;
-  --olive: #6B6245;
-  --stone: #2A2824;
+  --sand: #C9C6B8; /* Brightened from A09D94 */
+  --chalk: #EBE8E0; /* Brightened from D1CEC5 */
+  --olive: #8A815C; /* Brightened */
+  --stone: #9E9B8F; /* Highly brightened from 2A2824 for better dark-mode text visibility */
   --white: #F9F7F2;
   --line: rgba(197, 160, 33, 0.12);
   --dim: rgba(197, 160, 33, 0.05);
@@ -31,10 +64,10 @@ body.light-theme {
   --gold-bright: #B59535;
   --gold-deep: #634F0A;
   --cream: #1A1814;
-  --sand: #6B675E;
-  --chalk: #2A2824;
-  --olive: #6B6245;
-  --stone: #D1CEC5;
+  --sand: #4A4843; /* Darkened for better contrast on white background */
+  --chalk: #1A1A18; /* Darkened to almost black */
+  --olive: #4C4631;
+  --stone: #5C5A52; /* Darkened for light-mode text visibility */
   --white: #0A0A0A;
   --line: rgba(138, 109, 21, 0.1);
   --dim: rgba(138, 109, 21, 0.04);
@@ -145,7 +178,7 @@ body.light-theme #hero {
   background: var(--amber);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 10006; 
+  z-index: 10000000; 
   box-shadow: 0 0 10px var(--amber);
 }
 
@@ -162,9 +195,11 @@ body.opened #bar-top,body.opened #bar-bot{height:0;}
 
 /* LOADER */
 #loader{position:fixed;inset:0;z-index:9000;background:var(--black);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;}
-.loader-title{font-family:'Barlow Condensed',sans-serif;font-weight:100;font-size:clamp(3rem,10vw,7rem);letter-spacing:.3em;color:var(--chalk);text-transform:uppercase;overflow:hidden;}
-.loader-title span{display:inline-block;transform:translateY(100%);}
-.loader-sub{font-family:'Courier Prime',monospace;font-size:.65rem;letter-spacing:.3em;color:var(--olive);text-transform:uppercase;}
+.loader-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,10vw,7rem);letter-spacing:.2em;color:var(--white);text-transform:uppercase;overflow:hidden;line-height:1;}
+.loader-title span{display:inline-block;}
+.loader-sub{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.4em;color:var(--amber);text-transform:uppercase;margin-top:-10px;opacity:0.8;}
+.revealed { color: var(--white); }
+.encrypted { color: var(--amber); opacity: 0.4; }
 .loader-progress{width:220px;height:1px;background:var(--stone);}
 .loader-fill{height:100%;background:var(--amber);width:0%;transition:width .05s linear;}
 .loader-num{font-family:'Courier Prime',monospace;font-size:.6rem;color:var(--olive);letter-spacing:.2em;}
@@ -527,27 +562,28 @@ body.light-theme .hero-glow-text {
 section { padding: 120px 80px; }
 .section-wrap{max-width:1400px;margin:0 auto;}
 .sec-label{
-  font-family: 'Outfit', sans-serif;
+  font-family: 'JetBrains Mono', monospace;
   font-weight: 500;
-  font-size: 0.75rem;
-  letter-spacing: 0.3em;
+  font-size: 0.7rem;
+  letter-spacing: 0.5em;
   text-transform: uppercase;
   color: var(--amber);
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
+  opacity: 0.9;
 }
-.sec-label::after{content:'';width:30px;height:1px;background:var(--amber);opacity: 0.5;}
+.sec-label::after{content:'';width:40px;height:1px;background:var(--amber);opacity: 0.2;}
 .sec-title{
-  font-family:'Barlow Condensed',sans-serif;
-  font-weight:900;
-  text-transform:uppercase;
-  font-size:clamp(4rem, 10vw, 8.5rem);
-  line-height:0.85;
-  letter-spacing:-0.02em;
-  color:var(--white);
-  margin-bottom:80px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: clamp(3.2rem, 9vw, 8rem);
+  line-height: 0.85;
+  letter-spacing: 0.02em;
+  color: var(--white);
+  margin-bottom: 80px;
 }
 
 /* ABOUT */
@@ -990,14 +1026,9 @@ footer{padding:32px 64px;border-top:1px solid var(--line);display:flex;align-ite
   .btn { padding: 10px 20px; font-size: 0.7rem; letter-spacing: 0.15em; }
 
   /* Sections */
-  section { padding: 48px 16px; }
-  #about { padding: 60px 16px; }
-  #photography { padding: 60px 16px; }
-  #certifications { padding: 60px 16px; }
-  #education { padding: 60px 16px; }
-  #contact { padding: 60px 16px 48px; }
-  .sec-title { font-size: clamp(2.5rem, 12vw, 4rem); margin-bottom: 32px; }
-  .sec-label { font-size: 0.65rem; margin-bottom: 16px; }
+  section { padding: 80px 24px; }
+  .sec-title { font-size: clamp(2.8rem, 14vw, 4.5rem); margin-bottom: 48px; }
+  .sec-label { font-size: 0.6rem; margin-bottom: 24px; letter-spacing: 0.3em; }
 
   /* About */
   .about-stats { grid-template-columns: 1fr; }

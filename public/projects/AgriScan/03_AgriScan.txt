@@ -1,0 +1,180 @@
+================================================================================
+PROJECT: AGRISCAN — AI-Powered Crop Disease Prediction System
+================================================================================
+
+SHORT VERSION (Portfolio Summary)
+----------------------------------
+AgriScan is a machine learning and deep learning system that predicts crop
+diseases from leaf images. It combines classical ML baselines with a ResNet50
+transfer learning model, achieving robust multi-class disease classification
+with comprehensive EDA, ROC analysis, and actionable disease recommendations.
+
+Tech Stack: Python, TensorFlow/Keras, Scikit-learn, ResNet50, OpenCV, PIL
+Category: Machine Learning / Computer Vision | AgriTech
+
+Key Highlights:
+• Transfer learning with ResNet50 (ImageNet pre-trained) + fine-tuning
+• Multi-model comparison: Logistic Regression, Random Forest, Gradient Boosting, SVM
+• Feature extraction: Color Histograms + deep CNN features
+• ROC AUC multi-class analysis with per-class curve visualization
+• Disease recommendation engine — actionable treatment suggestions per class
+• Full EDA pipeline: class distribution, brightness analysis, sample visualization
+
+--------------------------------------------------------------------------------
+
+DETAILED VERSION
+--------------------------------------------------------------------------------
+
+OVERVIEW
+--------
+AgriScan is a comprehensive crop disease prediction system developed as a
+Jupyter Notebook-based research and deployment pipeline. It takes leaf images
+as input and predicts the disease class, followed by actionable treatment
+recommendations for farmers and agronomists.
+
+The project follows a scientific approach: starting with Exploratory Data Analysis
+(EDA), progressing through classical ML baselines for benchmarking, and culminating
+in a deep learning model using ResNet50 transfer learning for maximum accuracy.
+
+PROBLEM SOLVED
+--------------
+Crop diseases cause significant agricultural losses globally. Early and accurate
+identification of plant diseases is critical for timely intervention. AgriScan
+automates this visual diagnosis using AI, making expert-level disease detection
+accessible without specialized agronomic knowledge.
+
+DATASET
+-------
+- Image dataset organized in class folders (train/test split structure)
+- Image size: 224×224 pixels (standardized for CNN compatibility)
+- Batch size: 32 | Train split: 70% | Validation: 15% | Test: 15%
+- Multi-class classification covering multiple crop disease categories
+- Data augmentation via Keras ImageDataGenerator
+- Class imbalance handled with class_weight from sklearn
+
+PIPELINE OVERVIEW
+-----------------
+1. DATA LOADING & EDA
+   - Automated dataset structure analysis (class folders → labels)
+   - Image count per class with validity checks (minimum sample filtering)
+   - Class distribution bar chart visualization
+   - Brightness analysis per class (boxplot comparison)
+   - Sample image grid display (5 samples × N classes)
+   - RGB channel statistics and image quality checks
+
+2. FEATURE EXTRACTION
+   - Color Histogram extraction per image (for ML baselines)
+   - scikit-image feature extraction
+   - StandardScaler normalization for ML models
+   - LabelEncoder for class encoding
+
+3. ML BASELINE MODELS
+   Model                   Purpose
+   ----------------------  ------------------------------------------
+   Logistic Regression     Linear baseline, interpretable benchmark
+   Random Forest           Ensemble method, handles class imbalance
+   Gradient Boosting       Boosting ensemble for higher accuracy
+   SVM (Support Vector)    High-dimensional feature classification
+   Voting Classifier       Ensemble combination of above models
+   GridSearchCV            Hyperparameter tuning for best models
+   Cross-Validation        5-fold CV for robust performance estimate
+
+4. DEEP LEARNING MODEL — ResNet50 Transfer Learning
+   - Base: ResNet50 pre-trained on ImageNet (frozen initially)
+   - Custom head: GlobalAveragePooling2D → Dense → Dropout → Softmax
+   - Two-stage training:
+     Stage 1: Train custom head with frozen base (feature extraction)
+     Stage 2: Unfreeze top layers for fine-tuning
+   - Callbacks:
+     • EarlyStopping (patience=10, restore best weights)
+     • ModelCheckpoint (save best model checkpoint)
+     • ReduceLROnPlateau (adaptive learning rate)
+   - Also tested: EfficientNetB0 as alternative backbone
+   - Input pipeline: Keras ImageDataGenerator with augmentation
+     (rotation, horizontal flip, zoom, shear, brightness adjustment)
+
+5. EVALUATION & ANALYSIS
+   - Accuracy score per model
+   - Classification Report (precision, recall, F1 per class)
+   - Confusion Matrix with seaborn heatmap visualization
+   - ROC AUC Analysis:
+     • Per-class ROC curves with AUC values
+     • Micro-average ROC curve
+     • Multi-class one-vs-rest binarization
+   - Model comparison table (all baselines vs. deep learning)
+
+6. DISEASE RECOMMENDATION ENGINE
+   - Post-prediction recommendations per disease class
+   - Treatment suggestions (chemical, biological, cultural)
+   - Severity assessment integration
+   - Output formatted for farmer-friendly consumption
+
+7. MODEL SAVING & DEPLOYMENT READINESS
+   - Keras model saved as .h5 / SavedModel format
+   - ML models serialized with pickle
+   - LabelEncoder and Scaler saved for inference pipeline
+   - Plots saved to /plots directory
+   - Models saved to /saved_models directory
+   - JSON config and metadata export
+
+TECHNOLOGY STACK
+----------------
+Library/Tool          Version     Purpose
+--------------------  ----------  ---------------------------------------
+Python                3.x         Core language
+TensorFlow / Keras    2.x         Deep learning framework
+ResNet50              ImageNet    Pre-trained CNN backbone
+EfficientNetB0        ImageNet    Alternative backbone
+Scikit-learn          Latest      ML models, preprocessing, evaluation
+OpenCV (cv2)          Latest      Image processing
+PIL (Pillow)          Latest      Image loading and resizing
+scikit-image          Latest      Feature extraction
+NumPy                 Latest      Numerical operations
+Pandas                Latest      Data manipulation and logging
+Matplotlib            Latest      Plotting and visualization
+Seaborn               Latest      Statistical visualizations
+Certifi               Latest      SSL handling
+
+CONFIGURATION
+-------------
+Parameter             Value
+--------------------  ---------
+Input Image Size      224 × 224
+Batch Size            32
+Max Epochs            50
+Random State          42
+Test Split            15%
+Validation Split      15%
+Train Split           70%
+
+KEY METRICS TRACKED
+-------------------
+- Per-class Accuracy
+- Macro / Weighted F1 Score
+- ROC AUC (per class + micro-average)
+- Confusion Matrix
+- Training vs. Validation Loss/Accuracy curves
+- Cross-validation mean ± std
+
+OUTPUTS GENERATED
+-----------------
+plots/
+  class_distribution.png     — Bar chart of samples per class
+  roc_curve.png              — Multi-class ROC AUC curves
+  confusion_matrix.png       — Full confusion matrix heatmap
+  training_history.png       — Loss/accuracy training curves
+  sample_images.png          — Sample grid per disease class
+
+saved_models/
+  resnet50_best.h5           — Best deep learning checkpoint
+  rf_model.pkl               — Random Forest pickle
+  gb_model.pkl               — Gradient Boosting pickle
+  label_encoder.pkl          — Class label encoder
+  scaler.pkl                 — StandardScaler for ML pipeline
+
+STATUS
+------
+Research & training pipeline complete. Model evaluation and recommendation
+engine implemented. Ready for API wrapping and deployment.
+
+================================================================================

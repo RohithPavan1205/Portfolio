@@ -14,6 +14,7 @@ import Footer from './components/Footer'
 import CustomCursor from './components/CustomCursor'
 import Loader from './components/Loader'
 import SplashCursor from './components/SplashCursor'
+import Achievements from './components/Achievements'
 import StarField from './components/StarField'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -138,6 +139,7 @@ function App() {
             <Skills />
             <Lens />
             <Certifications />
+            <Achievements />
             <Education />
             <Contact />
           </main>

@@ -382,19 +382,20 @@ const Hero = ({ isLight }) => {
             className="relative w-full max-w-4xl h-[85vh] md:h-[80vh] flex flex-col bg-[color:var(--black)] border border-[color:var(--line)] shadow-2xl overflow-hidden rounded-lg"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center p-5 border-b border-[color:var(--line)]">
-              <h3 className="font-barlow text-lg font-bold uppercase tracking-widest text-[color:var(--amber)]">Resume Preview</h3>
+            <div className="flex justify-between items-center p-4 md:p-6 border-b border-[color:var(--line)]">
+              <h3 className="font-barlow text-lg font-bold uppercase tracking-widest text-[color:var(--amber)] m-0">Resume Preview</h3>
               <div className="flex gap-4 items-center">
                 <a 
                   href="/Rohith_Pavan_CV.pdf" 
                   download="Rohith_Pavan_CV.pdf"
-                  className="btn btn-primary !py-1.5 !px-5 !text-xs"
+                  className="btn btn-primary !py-2 !px-6 !text-xs whitespace-nowrap"
                 >
-                  Download
+                  Download CV
                 </a>
                 <button 
-                  className="text-white text-2xl leading-none hover:text-[color:var(--amber)] px-2"
+                  className="text-[color:var(--chalk)] text-3xl leading-none hover:text-[color:var(--amber)] px-2 pb-1 transition-colors"
                   onClick={() => setIsResumeOpen(false)}
+                  aria-label="Close Preview"
                 >
                   &times;
                 </button>

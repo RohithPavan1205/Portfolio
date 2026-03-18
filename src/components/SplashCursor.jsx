@@ -968,7 +968,7 @@ function SplashCursor({
 
     function isElementToIgnore(element) {
       if (!element) return false;
-      return element.closest('nav, button, a, .project-card, .tilt-card, .btn, .btn-circle, .about-photo-frame, .stat-cell, .skill-pill, .cert-tile, .achieve-tile');
+      return element.closest('nav, button, a, .project-card, .tilt-card, .btn, .btn-circle, .about-photo-frame, .stat-cell, .skill-pill, .cert-tile, .achieve-tile, .new-exp-card, .draggable-project-card');
     }
 
     // Named event handlers for proper cleanup
@@ -1061,7 +1061,7 @@ function SplashCursor({
         position: 'fixed',
         top: 0,
         left: 0,
-        zIndex: 50,
+        zIndex: 9999999,
         pointerEvents: 'none',
         width: '100%',
         height: '100%'

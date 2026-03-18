@@ -214,7 +214,7 @@ const CircularGallery = ({ items, options = {} }) => {
 
       {activeImage && (
         <div 
-          className="fixed inset-0 z-[100000] flex flex-col items-center justify-center p-4 md:p-8"
+          className="fixed inset-0 z-[999999] flex flex-col items-center justify-center p-4 md:p-8"
           style={{ background: 'var(--glass)', backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)' }}
           onClick={() => {
             setActiveImage(null);

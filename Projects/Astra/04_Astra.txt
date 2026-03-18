@@ -1,0 +1,218 @@
+================================================================================
+PROJECT: ASTRA — AI-Powered Customer Support & Resolution Platform
+(Built on Salesforce Experience Cloud + Agentforce)
+================================================================================
+
+SHORT VERSION (Portfolio Summary)
+----------------------------------
+Astra is an enterprise-grade AI customer support portal built entirely on
+Salesforce. It combines Experience Cloud, Service Cloud, Agentforce AI, and
+Knowledge Base into a unified self-service platform. Customers can search
+knowledge articles, raise cases, and resolve issues through an AI chat agent —
+all with multi-language support (English, Hindi, Telugu) and full admin control.
+
+Tech Stack: Salesforce Experience Cloud, Service Cloud, Agentforce, LWC, Apex, Flow
+Category: Salesforce Development | Enterprise CRM | AI Support Platform
+
+Key Highlights:
+• Agentforce AI agent with natural language understanding and KB grounding
+• Guided Self-Resolution Flow: AI → Knowledge → Case creation fallback
+• Auto case routing via Queues and Assignment Rules
+• Knowledge Learning Loop: resolved cases auto-convert to KB articles
+• Multi-language support: English, Hindi, Telugu
+• 25 features across core, AI, multilingual, and security modules
+
+--------------------------------------------------------------------------------
+
+DETAILED VERSION
+--------------------------------------------------------------------------------
+
+OVERVIEW
+--------
+Astra is a comprehensive AI-powered customer support and self-resolution platform
+built natively on Salesforce. It serves as a customer-facing Experience Cloud
+portal where users can authenticate, search knowledge articles, get instant AI
+answers, submit support cases, and track them end-to-end.
+
+The platform leverages Agentforce (Salesforce's AI agent framework) for natural
+language query handling, grounded entirely on the organization's own Knowledge
+Base. This ensures AI answers are accurate, contextual, and brand-controlled —
+not hallucinated from external sources.
+
+PROBLEM SOLVED
+--------------
+Traditional support systems create friction: customers raise tickets for problems
+that already have documented solutions. Astra routes customers through AI and
+Knowledge before allowing case creation — reducing support ticket volume,
+improving resolution time, and building an ever-growing knowledge base from
+every resolved case.
+
+FEATURE MODULES
+---------------
+
+🔐 1. CUSTOMER PORTAL (Experience Cloud)
+   - Self-signup and email-verified registration
+   - Login / Logout with secure session management
+   - Profile management (edit name, email, contact details)
+   - Secure access to personal cases and data only
+   - Navigation: Home | Knowledge | My Cases | Profile
+   - Role-based access: Customer Community User profile
+
+📚 2. KNOWLEDGE BASE (Salesforce Knowledge)
+   - FAQ-style articles: Question + Answer format
+   - Article publishing workflow (Draft → Review → Published)
+   - Visibility control: Customer-facing / Public
+   - Data Categories for topic-based organization
+   - Article detail view with related article suggestions
+   - Full Knowledge Search integration
+
+🔍 3. KNOWLEDGE SEARCH (LWC + SOSL)
+   - Search bar prominently placed on homepage
+   - Full-text search using SOSL (Salesforce Object Search Language)
+   - Dynamic search results page with article previews
+   - Click-through to full article detail view
+   - Optional: Filter results by category or type
+
+📋 4. CASE MANAGEMENT (Service Cloud)
+   - Case submission form (Screen Flow or LWC)
+   - Case fields: Subject, Description, Issue Type, Priority
+   - My Cases list — user sees only their own cases (private sharing)
+   - Case Detail view with status tracking
+   - Case status updates (New → In Progress → Resolved → Closed)
+   - File attachment support (screenshots, documents)
+   - Email notifications on case create and status update
+
+🗂️ 5. CASE ASSIGNMENT SYSTEM
+   - Three Queues:
+     • Technical Support Queue
+     • Billing Support Queue
+     • General Support Queue
+   - Assignment Rules: auto-route based on Issue Type → Queue
+   - Case owner visibility to assigned agent
+   - Escalation paths per queue
+
+🧭 6. GUIDED SELF-RESOLUTION FLOW (Screen Flow)
+   - User selects their issue type
+   - System suggests matching Knowledge articles
+   - If resolved → flow ends (deflection success)
+   - If not resolved → triggers case creation with pre-filled fields
+   - Reduces unnecessary case volume significantly
+
+🤖 7. AI SUPPORT AGENT (Agentforce)
+   - Embedded chat interface inside the portal
+   - Natural language query understanding
+   - Suggests relevant Knowledge articles in response
+   - Provides direct answers from KB content
+   - Handles follow-up prompts and clarifying questions
+   - Graceful handoff to case creation when unable to resolve
+
+🔺 8. AI ESCALATION LOGIC
+   - If AI confidence is below threshold:
+     • Suggests case creation to the user
+     • Pre-fills case subject and description from the conversation
+   - Smooth transition from AI chat to formal support ticket
+
+🧠 9. KNOWLEDGE GROUNDING
+   - Agentforce AI agent uses only the org's Knowledge articles as source
+   - No external internet access — answers are controlled and accurate
+   - Reduces hallucination risk by anchoring to internal KB
+
+🌐 10. MULTI-LANGUAGE SUPPORT
+    - Primary language: English
+    - Additional: Hindi, Telugu
+    - Language-based article display
+    - Knowledge article translations (roadmap)
+    - Language Switcher UI: Dropdown (English / Hindi / Telugu)
+
+🔄 11. CASE → KNOWLEDGE CONVERSION
+    - After a case is resolved, admin can create an article from the case
+    - One-click conversion: Case → Knowledge Article (Draft)
+    - Builds the knowledge base organically over time
+    - Ensures real customer issues are documented
+
+📈 12. KNOWLEDGE LEARNING LOOP
+    - New issues resolved → new articles created
+    - Growing KB → AI gives better answers
+    - Better AI → fewer cases raised
+    - Fewer cases → leaner support team
+    (Virtuous cycle of continuous improvement)
+
+💻 LIGHTNING WEB COMPONENTS (LWC)
+    Component                   Purpose
+    --------------------------  ------------------------------------------
+    Knowledge Search Component  Search bar + SOSL query + results display
+    Article Viewer Component    Full article detail with related articles
+    Case List Component         My Cases table with status and filters
+    Case Detail Component       Individual case view with timeline
+    AI Chat UI                  Agentforce chat interface wrapper
+
+⚙️ APEX CLASSES
+    - SOSL search controller for Knowledge articles
+    - Case creation controller with validation logic
+    - Article fetch by ID for detail view
+    - Helper classes for KB-to-case and case-to-KB conversion
+
+🔁 FLOW AUTOMATION
+    Type                        Trigger / Purpose
+    --------------------------  ------------------------------------------
+    Screen Flow                 Guided case submission (step-by-step form)
+    Record-Triggered Flow       On Case Create → assign queue, send email
+    Record-Triggered Flow       On Case Close → prompt KB article creation
+    Notification Flow           Email alert on case status change
+
+🔐 SECURITY ARCHITECTURE
+    Layer               Implementation
+    ---------------     ------------------------------------------------
+    Profiles            Customer Community User (restricted access)
+    Permission Sets     Granular feature access control
+    Object Security     Cases → Private (user sees own only)
+                        Knowledge → Public read (all customers)
+    Field-Level Sec.    Sensitive fields hidden from customer profile
+    RLS / Sharing       Org-wide defaults + sharing rules per object
+    JWT / Sessions      Managed by Salesforce Experience Cloud
+
+📊 OPTIONAL ADVANCED FEATURES (Differentiators)
+    Feature                     Description
+    --------------------------  ------------------------------------------
+    AI Case Summary             When case opened, AI summarizes + suggests
+    Smart Article Recommendations  Related articles on article and search pages
+    File Upload in Cases        Attach screenshots/docs to support requests
+    Q&A Community Forum         Users post questions, community answers
+    Gamification                Points, upvotes, leaderboard for helpers
+
+TECHNOLOGY STACK
+----------------
+Layer               Technology
+------------------  ------------------------------------------------------
+Portal Framework    Salesforce Experience Cloud (LWR / Aura)
+CRM Platform        Salesforce Service Cloud
+AI Agent            Agentforce (Salesforce native AI)
+Knowledge Mgmt      Salesforce Knowledge
+Frontend            Lightning Web Components (LWC)
+Backend Logic       Apex (Classes + Triggers)
+Automation          Salesforce Flow (Screen + Record-Triggered)
+Search              SOSL (Salesforce Object Search Language)
+Auth & Security     Salesforce Auth, Profiles, RLS, FLS
+Language Support    Salesforce Translation Workbench
+Integration         Salesforce REST API (optional external)
+
+FEATURE COUNT SUMMARY
+---------------------
+Module                              Features
+----------------------------------  --------
+Core System Features (Must Have)    18
+AI Features (Agentforce)            3
+Multilingual Features               1
+Smart System Features               2
+Development Features                3
+Security Features                   3
+Optional Advanced Features          5
+Optional Community Features         2
+TOTAL                               25+ features
+
+STATUS
+------
+Architecture and feature specification finalized.
+Development scope documented and ready for Salesforce org setup.
+
+================================================================================

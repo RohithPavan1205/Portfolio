@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import gsap from 'gsap';
+import DecryptedText from './DecryptedText';
 
 const Loader = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
 
+  // Handle Progress Counter
   useEffect(() => {
     let interval = setInterval(() => {
       setProgress(prev => {
@@ -14,23 +16,44 @@ const Loader = ({ onComplete }) => {
         return prev + 1;
       });
     }, 20);
-
-    const tl = gsap.timeline();
-    tl.to('.loader-title span', { y: '0%', duration: 1, ease: 'power4.out', delay: 0.2 });
-
-    if (progress === 100) {
-      tl.to('#loader', { opacity: 0, duration: 0.8, onComplete });
-    }
-
     return () => clearInterval(interval);
+  }, []);
+
+  // Handle Exit
+  useEffect(() => {
+    if (progress >= 100) {
+      const timer = setTimeout(() => {
+        gsap.to('#loader', { opacity: 0, duration: 0.8, onComplete });
+      }, 500); // Give it a moment to finish decrypting the name
+      return () => clearTimeout(timer);
+    }
   }, [progress, onComplete]);
 
   return (
     <div id="loader">
       <div className="loader-title">
-        <span style={{ display: 'inline-block', transform: 'translateY(100%)' }}>ROHITH</span>
+        <DecryptedText 
+          text="ROHITH PAVAN"
+          speed={40}
+          maxIterations={20}
+          animateOn="view"
+          revealDirection="center"
+          sequential
+          className="revealed"
+          encryptedClassName="encrypted"
+        />
       </div>
-      <div className="loader-sub">SYSTEMS & ARCHITECTURE</div>
+      <div className="loader-sub">
+        <DecryptedText 
+          text="SYSTEMS & ARCHITECTURE"
+          speed={30}
+          maxIterations={15}
+          animateOn="view"
+          sequential
+          className="revealed"
+          encryptedClassName="encrypted"
+        />
+      </div>
       <div className="loader-progress">
         <div className="loader-fill" style={{ width: `${progress}%` }}></div>
       </div>

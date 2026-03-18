@@ -1,0 +1,173 @@
+================================================================================
+PROJECT: AIPOINT — Full-Stack AI Creative Platform
+================================================================================
+
+SHORT VERSION (Portfolio Summary)
+----------------------------------
+AiPoint is a unified AI creative platform where users generate professional-grade
+images, videos, and audio using best-in-class AI models — all in one premium web
+interface. Built with React, Supabase, and Cloudflare, it supports tiered credit
+billing, Stripe subscriptions, a community gallery, and a full admin dashboard.
+
+Tech Stack: React + TypeScript, Supabase, Cloudflare R2, Stripe, FAL.ai, Replicate
+Category: Full-Stack Web Application | AI SaaS Platform
+
+Key Highlights:
+• 8 image models (FREE to LEGEND tier), 5 video models, 7 audio models
+• Tiered credit system with Stripe subscription billing
+• Community platform with likes, follows, and trending feeds
+• Admin dashboard for model control, revenue analytics, user management
+• Enterprise-grade infra: Supabase + Cloudflare CDN, zero egress storage
+
+--------------------------------------------------------------------------------
+
+DETAILED VERSION
+--------------------------------------------------------------------------------
+
+OVERVIEW
+--------
+AiPoint is a full-stack AI creative SaaS platform that brings together image,
+video, and audio generation in a single unified studio. Targeting creators,
+marketers, designers, and businesses, it abstracts the complexity of multiple
+AI APIs (FAL.ai, Replicate, xAI) behind a clean, premium dark-themed UI. Users
+purchase credits, choose their AI tier, generate media, and share to a community
+feed — all within one platform.
+
+The platform was architected for scale from day one using Supabase PostgreSQL +
+Edge Functions, Cloudflare R2 storage with global CDN, and Stripe for payments.
+
+PROBLEM SOLVED
+--------------
+Accessing top-tier AI generation models requires juggling multiple platforms,
+API keys, and pricing structures. AiPoint centralizes everything — offering a
+single login, one credit wallet, and a studio interface that handles prompt
+engineering, upscaling, and file storage automatically.
+
+CORE MODULES
+------------
+
+1. IMAGE GENERATION STUDIO
+   - 8 AI models from FREE to LEGEND tier (INR pricing):
+     FREE    : FLUX Fast Schnell (₹0.46/gen) — 3/day free
+     BUDGET  : GPT Image 1.5 (₹10/image, ~37% margin)
+     MID     : FLUX 2 Pro (₹9/image, ~36% margin)
+     PREMIUM : Ideogram V3 Balanced (₹14/image, ~49% margin)
+     PREMIUM+: Google Imagen 4 Ultra (₹15/image, ~51% margin)
+     ULTRA   : Google Nano Banana 2 2K (₹20/image, ~44% margin)
+     GOD     : Grok 2 Image (₹18/image, ~55% margin)
+     LEGEND  : Google Nano Banana Pro 2K (₹27/image, ~42% margin)
+   - Reference image support (style, character, up to 5 images)
+   - AI upscaling pipeline: Google Upscaler (2K→4K) + Real-ESRGAN
+   - Batch generation (up to 4 images/run), negative prompts, aspect ratios
+   - APIs: FAL.ai (Ideogram, Imagen4, Nano Banana, Grok) + Replicate (FLUX, GPT)
+
+2. VIDEO GENERATION STUDIO
+   - 5 AI models with per-second billing:
+     FREE   : WAN 2.2 Fast (₹4.60 flat, 3/day free, up to 5s)
+     BUDGET : Grok Imagine Video (₹80/5s, audio included, up to 15s)
+     MID    : Kling 2.6 Pro (₹100/5s, 1080p, first+last frame)
+     PREMIUM: Kling 3.0 Omni (₹200/5s, multi-shot, reference images)
+     ULTRA  : Veo 3.1 by Google DeepMind (₹250/5s, 1080p, lip sync)
+   - T2V, I2V, First Frame, Last Frame, Reference Image, Multi-Shot modes
+   - Audio toggle per model capability
+   - Duration selection: 5s / 8s / 10s / 15s
+
+3. AUDIO GENERATION STUDIO
+   Three categories: TTS (Speech), Music Generation, Sound Effects
+   TTS:
+     FREE : Kokoro TTS — 54 voices, 8 languages (5/day free, ₹0.10/run)
+     MID  : ElevenLabs v3 — 30+ languages, emotion control (₹15/1K chars)
+   Music:
+     BUDGET : TangoFlux — best text-to-audio, background music (₹10/run, 98% margin)
+     MID    : MusicGen Large (Meta) — up to 30s compositions (₹20/run, 74% margin)
+     PREMIUM: Stable Audio 2.5 — up to 3 min, stereo quality (₹60/file, 69% margin)
+   SFX:
+     BUDGET : TangoFlux — same model, SFX-prompted (₹8/run, 98% margin)
+     MID    : Stable Audio Open — short punchy SFX (₹15/run, 85% margin)
+
+4. USER AUTHENTICATION & ACCOUNTS
+   - Email + Google OAuth via Supabase Auth
+   - Role-based access: User / Admin
+   - Profile management: avatar, bio, display name
+   - JWT session handling + Row Level Security (RLS)
+
+5. CREDIT SYSTEM & SUBSCRIPTIONS
+   - Credit wallet per user with atomic deduction (no double-spend)
+   - Plans: Free / Pro / Business
+   - Stripe subscription + one-time credit top-up packs
+   - Transaction history and invoice generation
+   - Admin manual credit override
+
+6. FILE STORAGE & MEDIA LIBRARY
+   - Cloudflare R2 (S3-compatible, zero egress fees)
+   - Per-user media library with folder organization and tagging
+   - Storage quotas: 500MB (Free) / 10GB (Pro) / 100GB (Business)
+   - Direct CDN delivery via Cloudflare global edge
+
+7. GENERATION HISTORY
+   - Full log per user across all studios
+   - Filter by type, date, model used
+   - One-click re-run with full parameter recall
+   - Export as CSV
+
+8. COMMUNITY PLATFORM
+   - Public feed with AI-generated content
+   - Like, save, share, follow creators
+   - Personal feed and trending section (most liked this week)
+   - User portfolio pages
+   - Report/flag inappropriate content
+
+9. ADMIN DASHBOARD
+   - User management: suspend, delete, adjust credits
+   - Revenue analytics: MRR, credits sold, plan distribution
+   - Generation stats per model
+   - Model enable/disable toggle (instant on/off)
+   - API spend monitoring (per day/week/month)
+   - Community moderation panel
+
+TECHNOLOGY STACK
+----------------
+Layer           Technology                          Purpose
+--------------  ----------------------------------  ----------------------------------
+Frontend        React + TypeScript + Vite           Type-safe SPA, component architecture
+Styling         Tailwind CSS                        Utility-first design system
+State           React Query + Zustand               Server state caching + client state
+Backend         Supabase Edge Functions (Deno)      Serverless API, auto-scaled
+Database        Supabase PostgreSQL                 10 tables: profiles, credits, subs,
+                                                    generations, community, files, etc.
+Auth            Supabase Auth                       Email + Google OAuth, RLS policies
+Storage         Cloudflare R2                       Zero egress, S3-compatible object store
+CDN             Cloudflare                          Global edge media delivery
+Payments        Stripe                              Subscriptions, top-ups, webhooks
+Image AI        FAL.ai + Replicate                  8 models: FLUX, Ideogram, Imagen4,
+                                                    Nano Banana, Grok, GPT Image
+Video AI        Replicate                           5 models: WAN, Grok, Kling 2.6/3.0, Veo
+Audio AI        Replicate                           7 models: Kokoro, ElevenLabs, TangoFlux,
+                                                    MusicGen, Stable Audio 2.5/Open
+
+DATABASE SCHEMA (10 Tables)
+----------------------------
+profiles, credits, subscriptions, transactions, generations,
+files, community_posts, likes, follows, reports
+
+DEVELOPMENT PHASES
+------------------
+Phase 1 (1 week)   : Architecture, UI/UX wireframes, DB schema, tech setup — ₹25K–₹40K
+Phase 2 (3-4 weeks): Full UI, backend, all AI studio integrations, auth, payments — ₹60K–₹80K
+Phase 3 (1-2 weeks): Testing, security audit, deployment, handover — Remaining
+TOTAL INVESTMENT   : ₹1,75,000 – ₹2,50,000 (estimated)
+(Note: AI API costs billed separately to client's API accounts)
+
+PRICING MODEL (INR, $1 = ₹92)
+------------------------------
+All models priced with healthy margins:
+• Highest margin: Grok 2 Image GOD tier (~55%), TangoFlux SFX (98%)
+• Best value model: TangoFlux at ₹0.20 cost → ₹8-10 charge
+• Premium anchor: Google Nano Banana Pro LEGEND at ₹27/image
+
+STATUS
+------
+In development — Architecture finalized, pricing documentation complete,
+development proposal accepted.
+
+================================================================================

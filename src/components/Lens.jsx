@@ -47,21 +47,7 @@ const Lens = () => {
           <p className="photo-intro-text fade-up">Photography is not a hobby — it's how I understand <em>light, time, and composition</em>. The same eye I use to frame a shot is what I bring to designing interfaces: intentional, balanced, unforgettable.</p>
         </div>
 
-        <div className="photography-details">
-          <div className="editing-stack">
-            <div className="edit-row fade-left"><div className="edit-icon">🎨</div><div className="edit-info"><div className="edit-name">Adobe Photoshop</div><div className="edit-desc">Compositing · Manipulation · Retouching</div></div><div className="edit-level">Expert</div></div>
-            <div className="edit-row fade-left"><div className="edit-icon">📷</div><div className="edit-info"><div className="edit-name">Adobe Lightroom</div><div className="edit-desc">RAW Processing · Color Grading</div></div><div className="edit-level">Advanced</div></div>
-            <div className="edit-row fade-left"><div className="edit-icon">🎬</div><div className="edit-info"><div className="edit-name">Premiere Pro</div><div className="edit-desc">Editing · Color · Sound Design</div></div><div className="edit-level">Advanced</div></div>
-            <div className="edit-row fade-left"><div className="edit-icon">⚡</div><div className="edit-info"><div className="edit-name">After Effects</div><div className="edit-desc">Motion Graphics · VFX</div></div><div className="edit-level">Intermediate</div></div>
-          </div>
-          
-          <div className="fade-right">
-            <div className="award-ribbon">
-              <div className="ribbon-icon">🥇</div>
-              <div><div className="ribbon-title">1st Prize — Photoshop Master</div><div className="ribbon-sub">Institutional Design Competition · March 2024</div></div>
-            </div>
-          </div>
-        </div>
+
       </div>
     </section>
   );
