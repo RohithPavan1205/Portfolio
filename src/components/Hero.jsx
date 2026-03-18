@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { SplineScene } from './ui/SplineScene';
@@ -371,43 +372,44 @@ const Hero = ({ isLight }) => {
           </div>
         </div>
       </div>
-      {isResumeOpen && (
+      {isResumeOpen && createPortal(
         <div 
-          className="fixed inset-0 z-[10001] flex items-center justify-center p-4 md:p-12"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 md:p-8"
           style={{ background: 'var(--glass)', backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)' }}
           onClick={() => setIsResumeOpen(false)}
         >
           <div 
-            className="relative w-full max-w-5xl h-full flex flex-col bg-[color:var(--black)] border border-[color:var(--line)] shadow-2xl overflow-hidden"
+            className="relative w-full max-w-4xl h-[85vh] md:h-[80vh] flex flex-col bg-[color:var(--black)] border border-[color:var(--line)] shadow-2xl overflow-hidden rounded-lg"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center p-6 border-b border-[color:var(--line)]">
-              <h3 className="font-barlow text-xl font-bold uppercase tracking-widest text-[color:var(--amber)]">Resume Preview</h3>
-              <div className="flex gap-4">
+            <div className="flex justify-between items-center p-5 border-b border-[color:var(--line)]">
+              <h3 className="font-barlow text-lg font-bold uppercase tracking-widest text-[color:var(--amber)]">Resume Preview</h3>
+              <div className="flex gap-4 items-center">
                 <a 
                   href="/Rohith_Pavan_CV.pdf" 
                   download="Rohith_Pavan_CV.pdf"
-                  className="btn btn-primary !py-2 !px-6 !text-xs"
+                  className="btn btn-primary !py-1.5 !px-5 !text-xs"
                 >
                   Download
                 </a>
                 <button 
-                  className="text-white text-3xl leading-none hover:text-[color:var(--amber)]"
+                  className="text-white text-2xl leading-none hover:text-[color:var(--amber)] px-2"
                   onClick={() => setIsResumeOpen(false)}
                 >
                   &times;
                 </button>
               </div>
             </div>
-            <div className="flex-1 w-full relative bg-white">
+            <div className="flex-1 w-full relative bg-[#323639]">
               <iframe 
-                src="/Rohith_Pavan_CV.pdf#toolbar=0" 
+                src="/Rohith_Pavan_CV.pdf#toolbar=0&view=FitH" 
                 className="w-full h-full border-none"
                 title="Resume Preview"
               ></iframe>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </section>
   );
