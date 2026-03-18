@@ -25,225 +25,185 @@ const Hero = ({ isLight }) => {
     uniformsRef.current.u_color.value.set(isLight ? 0x8A6D15 : 0xC5A021);
   }, [isLight]);
 
-  // Laser beam animation
-  const fireLaser = useCallback(() => {
+  const asteroidDroppedRef = useRef(false);
+
+  // Asteroid Animation VFX
+  const dropAsteroid = useCallback(() => {
+    // Prevent double execution in React StrictMode
+    if (asteroidDroppedRef.current) return;
+    asteroidDroppedRef.current = true;
+
     const btn = resumeBtnRef.current;
-    const laserContainer = laserContainerRef.current;
-    if (!btn || !laserContainer) return;
+    const effectContainer = laserContainerRef.current;
+    if (!btn || !effectContainer) return;
 
     const heroSection = btn.closest('#hero');
     if (!heroSection) return;
     const heroRect = heroSection.getBoundingClientRect();
     const btnRect = btn.getBoundingClientRect();
 
-    // Robot eye position — approximate from the Spline scene (upper-right area)
-    const eyeX = heroRect.width * 0.58;
-    const eyeY = heroRect.height * 0.28;
-
     // Button center position relative to hero
     const btnCenterX = btnRect.left - heroRect.left + btnRect.width / 2;
     const btnCenterY = btnRect.top - heroRect.top + btnRect.height / 2;
 
-    // Calculate angle and distance
-    const dx = btnCenterX - eyeX;
-    const dy = btnCenterY - eyeY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+    // Start position: Far top right of the hero section
+    const startX = heroRect.width - 50; 
+    const startY = -200;
 
-    // Create laser beam SVG
-    const svgNS = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(svgNS, "svg");
-    svg.setAttribute("class", "laser-svg");
-    svg.style.cssText = `position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;overflow:visible;`;
+    // Calculate angle for the fire trail to point exactly away from movement path
+    const dx = btnCenterX - startX;
+    const dy = btnCenterY - startY;
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI) - 90;
 
-    // Glow filter
-    const defs = document.createElementNS(svgNS, "defs");
-    const filter = document.createElementNS(svgNS, "filter");
-    filter.setAttribute("id", "laser-glow");
-    filter.setAttribute("x", "-50%");
-    filter.setAttribute("y", "-50%");
-    filter.setAttribute("width", "200%");
-    filter.setAttribute("height", "200%");
-    const blur = document.createElementNS(svgNS, "feGaussianBlur");
-    blur.setAttribute("stdDeviation", "6");
-    blur.setAttribute("result", "coloredBlur");
-    const merge = document.createElementNS(svgNS, "feMerge");
-    const mn1 = document.createElementNS(svgNS, "feMergeNode");
-    mn1.setAttribute("in", "coloredBlur");
-    const mn2 = document.createElementNS(svgNS, "feMergeNode");
-    mn2.setAttribute("in", "SourceGraphic");
-    merge.appendChild(mn1);
-    merge.appendChild(mn2);
-    filter.appendChild(blur);
-    filter.appendChild(merge);
-    defs.appendChild(filter);
-    svg.appendChild(defs);
+    // Create asteroid wrapper
+    const asteroidWrapper = document.createElement('div');
+    asteroidWrapper.className = 'asteroid-container';
+    asteroidWrapper.style.cssText = `position:absolute;left:${startX}px;top:${startY}px;pointer-events:none;z-index:55;`;
 
-    // Main beam line (thick bright core)
-    const beamCore = document.createElementNS(svgNS, "line");
-    beamCore.setAttribute("x1", eyeX);
-    beamCore.setAttribute("y1", eyeY);
-    beamCore.setAttribute("x2", eyeX);
-    beamCore.setAttribute("y2", eyeY);
-    beamCore.setAttribute("stroke", "#E5C158");
-    beamCore.setAttribute("stroke-width", "3");
-    beamCore.setAttribute("stroke-linecap", "round");
-    beamCore.setAttribute("filter", "url(#laser-glow)");
-    beamCore.setAttribute("opacity", "0");
-    svg.appendChild(beamCore);
+    // Create fire trail
+    const fireTrail = document.createElement('div');
+    fireTrail.className = 'asteroid-fire-trail';
+    fireTrail.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+    asteroidWrapper.appendChild(fireTrail);
 
-    // Outer glow beam
-    const beamGlow = document.createElementNS(svgNS, "line");
-    beamGlow.setAttribute("x1", eyeX);
-    beamGlow.setAttribute("y1", eyeY);
-    beamGlow.setAttribute("x2", eyeX);
-    beamGlow.setAttribute("y2", eyeY);
-    beamGlow.setAttribute("stroke", "rgba(197, 160, 33, 0.4)");
-    beamGlow.setAttribute("stroke-width", "12");
-    beamGlow.setAttribute("stroke-linecap", "round");
-    beamGlow.setAttribute("filter", "url(#laser-glow)");
-    beamGlow.setAttribute("opacity", "0");
-    svg.appendChild(beamGlow);
+    // Create main rock
+    const rock = document.createElement('div');
+    rock.className = 'asteroid-rock';
+    asteroidWrapper.appendChild(rock);
 
-    // Eye flash circle
-    const eyeFlash = document.createElementNS(svgNS, "circle");
-    eyeFlash.setAttribute("cx", eyeX);
-    eyeFlash.setAttribute("cy", eyeY);
-    eyeFlash.setAttribute("r", "0");
-    eyeFlash.setAttribute("fill", "#E5C158");
-    eyeFlash.setAttribute("filter", "url(#laser-glow)");
-    eyeFlash.setAttribute("opacity", "0");
-    svg.appendChild(eyeFlash);
+    effectContainer.appendChild(asteroidWrapper);
 
-    laserContainer.appendChild(svg);
-
-    // Create explosion particles container
+    // Create explosion container
     const explosionDiv = document.createElement('div');
-    explosionDiv.className = 'laser-explosion';
-    explosionDiv.style.cssText = `position:absolute;left:${btnCenterX}px;top:${btnCenterY}px;width:0;height:0;pointer-events:none;z-index:55;`;
-    laserContainer.appendChild(explosionDiv);
+    explosionDiv.className = 'asteroid-explosion';
+    explosionDiv.style.cssText = `position:absolute;left:${btnCenterX}px;top:${btnCenterY}px;width:0;height:0;pointer-events:none;z-index:56;`;
+    effectContainer.appendChild(explosionDiv);
 
     // --- ANIMATION TIMELINE ---
-    const laserTL = gsap.timeline();
+    const tl = gsap.timeline();
 
-    // 1) Eye flash — charging up
-    laserTL.to(eyeFlash, {
-      attr: { r: 15, opacity: 1 },
-      duration: 0.3,
-      ease: 'power2.out'
+    // 1) Fall from sky
+    tl.to(asteroidWrapper, {
+      left: btnCenterX,
+      top: btnCenterY,
+      duration: 1.8, // Slower fall speed
+      ease: 'power1.in'
     })
-    .to(eyeFlash, {
-      attr: { r: 6 },
-      duration: 0.15,
-      ease: 'power2.in'
-    })
+    // Spin rock while falling
+    .to(rock, {
+      rotation: -1080, // More spin
+      duration: 1.8,
+      ease: 'none'
+    }, '<')
 
-    // 2) Fire the laser beam
-    .to([beamCore, beamGlow], {
-      attr: { opacity: 1 },
-      duration: 0.05
-    })
-    .to([beamCore, beamGlow], {
-      attr: { x2: btnCenterX, y2: btnCenterY },
-      duration: 0.25,
-      ease: 'power4.out'
-    })
-
-    // 3) Impact flash on button
+    // 2) Impact!
     .add(() => {
-      // Screen shake
+      // Aggressive screen shake
       gsap.to(heroSection, {
-        x: 3, duration: 0.05, yoyo: true, repeat: 5,
-        onComplete: () => gsap.set(heroSection, { x: 0 })
+        x: 10, y: 6, duration: 0.05, yoyo: true, repeat: 11,
+        onComplete: () => gsap.set(heroSection, { x: 0, y: 0 })
       });
 
-      // Create explosion ring
+      // Remove the falling asteroid
+      asteroidWrapper.remove();
+
+      // Create shockwave ring (Massive and intense)
       const ring = document.createElement('div');
-      ring.className = 'explosion-ring';
+      ring.className = 'impact-shockwave';
       explosionDiv.appendChild(ring);
       gsap.fromTo(ring, 
-        { width: 0, height: 0, opacity: 1 },
-        { width: 200, height: 200, opacity: 0, duration: 0.6, ease: 'power2.out',
+        { width: 0, height: 0, opacity: 1, borderWidth: 12 },
+        { width: 450, height: 450, opacity: 0, borderWidth: 0, duration: 0.9, ease: 'power3.out',
           onComplete: () => ring.remove()
         }
       );
 
-      // Create particles
-      const particleCount = 16;
-      for (let i = 0; i < particleCount; i++) {
+      // Create blast flash (Massive screen illumination)
+      const blastFlash = document.createElement('div');
+      blastFlash.className = 'blast-flash';
+      explosionDiv.appendChild(blastFlash);
+      gsap.fromTo(blastFlash,
+        { scale: 0, opacity: 1 },
+        { scale: 8, opacity: 0, duration: 0.8, ease: 'power2.out', onComplete: () => blastFlash.remove() }
+      );
+
+      // Asteroid Fragments (Rock breaking - Lots of shrapnel)
+      for (let i = 0; i < 25; i++) {
+        const frag = document.createElement('div');
+        frag.className = 'asteroid-fragment';
+        const size = 4 + Math.random() * 12; // Range from tiny to medium chunks
+        frag.style.width = size + 'px';
+        frag.style.height = size + 'px';
+        frag.style.borderRadius = `${30 + Math.random()*40}% ${30 + Math.random()*40}% ${30 + Math.random()*40}% ${30 + Math.random()*40}%`;
+        explosionDiv.appendChild(frag);
+
+        const fAngle = (Math.random() * 360) * Math.PI / 180;
+        const fDist = 120 + Math.random() * 300; // Fly MUCH further away
+        const fx = Math.cos(fAngle) * fDist;
+        const fy = Math.sin(fAngle) * fDist;
+
+        gsap.to(frag, {
+          x: fx, y: fy,
+          rotation: Math.random() * 1440 - 720,
+          opacity: 0,
+          duration: 0.8 + Math.random() * 0.8,
+          ease: 'power3.out',
+          onComplete: () => frag.remove()
+        });
+      }
+
+      // Fire/Plasma Particles (A massive fireball scatter)
+      for (let i = 0; i < 45; i++) {
         const particle = document.createElement('div');
-        particle.className = 'explosion-particle';
-        const pAngle = (i / particleCount) * 360;
-        const pDist = 40 + Math.random() * 80;
-        const px = Math.cos(pAngle * Math.PI / 180) * pDist;
-        const py = Math.sin(pAngle * Math.PI / 180) * pDist;
-        const size = 2 + Math.random() * 5;
-        particle.style.width = size + 'px';
-        particle.style.height = size + 'px';
+        particle.className = 'fire-particle';
+        const pSize = 3 + Math.random() * 10;
+        particle.style.width = pSize + 'px';
+        particle.style.height = pSize + 'px';
         explosionDiv.appendChild(particle);
-        gsap.fromTo(particle,
-          { x: 0, y: 0, opacity: 1, scale: 1 },
-          { x: px, y: py, opacity: 0, scale: 0, duration: 0.5 + Math.random() * 0.4,
-            ease: 'power3.out', onComplete: () => particle.remove()
-          }
-        );
-      }
 
-      // Create sparks (small lines)
-      for (let i = 0; i < 8; i++) {
-        const spark = document.createElement('div');
-        spark.className = 'explosion-spark';
-        const sAngle = (i / 8) * 360 + Math.random() * 30;
-        const sDist = 60 + Math.random() * 60;
-        const sx = Math.cos(sAngle * Math.PI / 180) * sDist;
-        const sy = Math.sin(sAngle * Math.PI / 180) * sDist;
-        spark.style.transform = `rotate(${sAngle}deg)`;
-        explosionDiv.appendChild(spark);
-        gsap.fromTo(spark,
-          { x: 0, y: 0, opacity: 1 },
-          { x: sx, y: sy, opacity: 0, duration: 0.4 + Math.random() * 0.3,
-            ease: 'power2.out', onComplete: () => spark.remove()
-          }
-        );
+        const pAngle = (Math.random() * 360) * Math.PI / 180;
+        const pDist = 60 + Math.random() * 250; // Explode far out
+        
+        gsap.to(particle, {
+          x: Math.cos(pAngle) * pDist,
+          y: Math.sin(pAngle) * pDist,
+          scale: 0,
+          opacity: 0,
+          duration: 0.5 + Math.random() * 0.7,
+          ease: 'power2.out',
+          onComplete: () => particle.remove()
+        });
       }
     })
 
-    // 4) Flash the button white briefly
+    // 3) Button Reaction
     .to(btn, {
-      boxShadow: '0 0 60px 20px rgba(229, 193, 88, 0.8), 0 0 120px 40px rgba(197, 160, 33, 0.5)',
+      boxShadow: '0 0 60px 20px rgba(255, 120, 0, 0.6), 0 0 100px 30px rgba(255, 60, 0, 0.3)',
       scale: 1.15,
-      duration: 0.15,
+      duration: 0.1,
       ease: 'power2.out'
-    })
+    }, '-=0.05')
 
-    // 5) Activate the button — transform to primary
+    // 4) Activate Button
     .add(() => {
       setBtnActivated(true);
     })
     .to(btn, {
       boxShadow: '0 0 30px 5px rgba(197, 160, 33, 0.3)',
       scale: 1,
-      duration: 0.5,
-      ease: 'elastic.out(1.2, 0.5)'
+      duration: 0.6,
+      ease: 'elastic.out(1, 0.4)'
     })
 
-    // 6) Fade out laser beam
-    .to([beamCore, beamGlow, eyeFlash], {
-      attr: { opacity: 0 },
-      duration: 0.3,
-      ease: 'power2.in'
-    }, '-=0.3')
-
-    // 7) Remove button glow shadow after settling
+    // 5) Remove button glow after settling
     .to(btn, {
       boxShadow: '0 0 0 0 transparent',
       duration: 0.8,
       ease: 'power2.out'
     })
 
-    // 8) Cleanup
+    // 6) Cleanup
     .add(() => {
-      svg.remove();
       explosionDiv.remove();
     });
 
@@ -338,10 +298,10 @@ const Hero = ({ isLight }) => {
     tl.to([n1Ref.current, n2Ref.current], { y: '0%', duration: 1.2, stagger: 0.15, ease: 'expo.out' })
       .to(eyebrowRef.current, { opacity: 1, x: 0, duration: 0.8 }, '-=0.8')
       .to(footerRef.current, { opacity: 1, y: 0, duration: 0.8 }, '-=0.6')
-      // Wait for the robot to settle, then fire laser
+      // Wait for the robot to settle, then drop asteroid
       .add(() => {
-        // Small delay for the Spline scene to fully render
-        setTimeout(() => fireLaser(), 800);
+        // Delay for dramatic effect
+        setTimeout(() => dropAsteroid(), 800);
       }, '+=0.5');
 
     return () => {
@@ -351,7 +311,7 @@ const Hero = ({ isLight }) => {
       mesh.geometry.dispose();
       mesh.material.dispose();
     };
-  }, [fireLaser]);
+  }, [dropAsteroid]);
 
   return (
     <section id="hero" className="relative w-full overflow-hidden flex items-center min-h-[850px] lg:h-screen">
