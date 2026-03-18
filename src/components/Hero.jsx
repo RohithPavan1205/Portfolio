@@ -167,7 +167,7 @@ const Hero = ({ isLight }) => {
         </div>
 
         {/* Right content - Spline */}
-        <div className="flex-1 relative order-1 lg:order-2 h-[400px] lg:h-full w-full">
+        <div className="flex-1 relative order-1 lg:order-2 h-[300px] sm:h-[400px] lg:h-full w-full">
           <div className="absolute inset-0 pointer-events-auto">
             <SplineScene 
               scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"

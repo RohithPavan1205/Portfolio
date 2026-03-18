@@ -31,7 +31,7 @@ const Lens = () => {
         <div className="sec-label fade-up">Through The Lens</div>
         <h2 className="sec-title fade-up">VISUAL<br />CRAFT</h2>
         
-        <div style={{ height: '600px', width: '100%', position: 'relative', marginBottom: '20px', zIndex: 100 }}>
+        <div className="photography-gallery-container" style={{ height: '600px', width: '100%', position: 'relative', marginBottom: '20px', zIndex: 100 }}>
           <CircularGallery 
             items={items} 
             options={{ 
