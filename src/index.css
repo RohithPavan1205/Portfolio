@@ -267,6 +267,58 @@ nav {
 .theme-toggle:hover { color: var(--amber); }
 .theme-toggle svg { width: 18px; height: 18px; fill: currentColor; }
 
+/* LASER BEAM & EXPLOSION EFFECTS */
+.laser-target-btn {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: visible;
+}
+
+.laser-target-btn.btn-secondary {
+  border: 1px solid var(--line);
+  color: var(--amber);
+  background: transparent;
+}
+
+.laser-target-btn.btn-primary {
+  background: var(--amber);
+  color: var(--black);
+  border: 1px solid var(--amber);
+}
+
+.explosion-ring {
+  position: absolute;
+  border: 2px solid #E5C158;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 20px rgba(229, 193, 88, 0.5), inset 0 0 20px rgba(229, 193, 88, 0.3);
+  pointer-events: none;
+}
+
+.explosion-particle {
+  position: absolute;
+  background: #E5C158;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px #E5C158, 0 0 12px rgba(197, 160, 33, 0.5);
+  pointer-events: none;
+}
+
+.explosion-spark {
+  position: absolute;
+  width: 16px;
+  height: 2px;
+  background: linear-gradient(90deg, #E5C158, transparent);
+  border-radius: 1px;
+  transform-origin: left center;
+  pointer-events: none;
+  box-shadow: 0 0 4px #E5C158;
+}
+
+.laser-svg line {
+  will-change: x2, y2, opacity;
+}
+
 /* HERO */
 #hero {
   min-height: 100vh;

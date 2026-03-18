@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { SplineScene } from './ui/SplineScene';
@@ -10,7 +10,10 @@ const Hero = ({ isLight }) => {
   const footerRef = useRef(null);
   const n1Ref = useRef(null);
   const n2Ref = useRef(null);
+  const resumeBtnRef = useRef(null);
+  const laserContainerRef = useRef(null);
   const [isResumeOpen, setIsResumeOpen] = useState(false);
+  const [btnActivated, setBtnActivated] = useState(false);
   const uniformsRef = useRef({
     u_time: { type: "f", value: 1.0 },
     u_resolution: { type: "v2", value: new THREE.Vector2() },
@@ -21,6 +24,230 @@ const Hero = ({ isLight }) => {
   useEffect(() => {
     uniformsRef.current.u_color.value.set(isLight ? 0x8A6D15 : 0xC5A021);
   }, [isLight]);
+
+  // Laser beam animation
+  const fireLaser = useCallback(() => {
+    const btn = resumeBtnRef.current;
+    const laserContainer = laserContainerRef.current;
+    if (!btn || !laserContainer) return;
+
+    const heroSection = btn.closest('#hero');
+    if (!heroSection) return;
+    const heroRect = heroSection.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+
+    // Robot eye position — approximate from the Spline scene (upper-right area)
+    const eyeX = heroRect.width * 0.58;
+    const eyeY = heroRect.height * 0.28;
+
+    // Button center position relative to hero
+    const btnCenterX = btnRect.left - heroRect.left + btnRect.width / 2;
+    const btnCenterY = btnRect.top - heroRect.top + btnRect.height / 2;
+
+    // Calculate angle and distance
+    const dx = btnCenterX - eyeX;
+    const dy = btnCenterY - eyeY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+    // Create laser beam SVG
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("class", "laser-svg");
+    svg.style.cssText = `position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;overflow:visible;`;
+
+    // Glow filter
+    const defs = document.createElementNS(svgNS, "defs");
+    const filter = document.createElementNS(svgNS, "filter");
+    filter.setAttribute("id", "laser-glow");
+    filter.setAttribute("x", "-50%");
+    filter.setAttribute("y", "-50%");
+    filter.setAttribute("width", "200%");
+    filter.setAttribute("height", "200%");
+    const blur = document.createElementNS(svgNS, "feGaussianBlur");
+    blur.setAttribute("stdDeviation", "6");
+    blur.setAttribute("result", "coloredBlur");
+    const merge = document.createElementNS(svgNS, "feMerge");
+    const mn1 = document.createElementNS(svgNS, "feMergeNode");
+    mn1.setAttribute("in", "coloredBlur");
+    const mn2 = document.createElementNS(svgNS, "feMergeNode");
+    mn2.setAttribute("in", "SourceGraphic");
+    merge.appendChild(mn1);
+    merge.appendChild(mn2);
+    filter.appendChild(blur);
+    filter.appendChild(merge);
+    defs.appendChild(filter);
+    svg.appendChild(defs);
+
+    // Main beam line (thick bright core)
+    const beamCore = document.createElementNS(svgNS, "line");
+    beamCore.setAttribute("x1", eyeX);
+    beamCore.setAttribute("y1", eyeY);
+    beamCore.setAttribute("x2", eyeX);
+    beamCore.setAttribute("y2", eyeY);
+    beamCore.setAttribute("stroke", "#E5C158");
+    beamCore.setAttribute("stroke-width", "3");
+    beamCore.setAttribute("stroke-linecap", "round");
+    beamCore.setAttribute("filter", "url(#laser-glow)");
+    beamCore.setAttribute("opacity", "0");
+    svg.appendChild(beamCore);
+
+    // Outer glow beam
+    const beamGlow = document.createElementNS(svgNS, "line");
+    beamGlow.setAttribute("x1", eyeX);
+    beamGlow.setAttribute("y1", eyeY);
+    beamGlow.setAttribute("x2", eyeX);
+    beamGlow.setAttribute("y2", eyeY);
+    beamGlow.setAttribute("stroke", "rgba(197, 160, 33, 0.4)");
+    beamGlow.setAttribute("stroke-width", "12");
+    beamGlow.setAttribute("stroke-linecap", "round");
+    beamGlow.setAttribute("filter", "url(#laser-glow)");
+    beamGlow.setAttribute("opacity", "0");
+    svg.appendChild(beamGlow);
+
+    // Eye flash circle
+    const eyeFlash = document.createElementNS(svgNS, "circle");
+    eyeFlash.setAttribute("cx", eyeX);
+    eyeFlash.setAttribute("cy", eyeY);
+    eyeFlash.setAttribute("r", "0");
+    eyeFlash.setAttribute("fill", "#E5C158");
+    eyeFlash.setAttribute("filter", "url(#laser-glow)");
+    eyeFlash.setAttribute("opacity", "0");
+    svg.appendChild(eyeFlash);
+
+    laserContainer.appendChild(svg);
+
+    // Create explosion particles container
+    const explosionDiv = document.createElement('div');
+    explosionDiv.className = 'laser-explosion';
+    explosionDiv.style.cssText = `position:absolute;left:${btnCenterX}px;top:${btnCenterY}px;width:0;height:0;pointer-events:none;z-index:55;`;
+    laserContainer.appendChild(explosionDiv);
+
+    // --- ANIMATION TIMELINE ---
+    const laserTL = gsap.timeline();
+
+    // 1) Eye flash — charging up
+    laserTL.to(eyeFlash, {
+      attr: { r: 15, opacity: 1 },
+      duration: 0.3,
+      ease: 'power2.out'
+    })
+    .to(eyeFlash, {
+      attr: { r: 6 },
+      duration: 0.15,
+      ease: 'power2.in'
+    })
+
+    // 2) Fire the laser beam
+    .to([beamCore, beamGlow], {
+      attr: { opacity: 1 },
+      duration: 0.05
+    })
+    .to([beamCore, beamGlow], {
+      attr: { x2: btnCenterX, y2: btnCenterY },
+      duration: 0.25,
+      ease: 'power4.out'
+    })
+
+    // 3) Impact flash on button
+    .add(() => {
+      // Screen shake
+      gsap.to(heroSection, {
+        x: 3, duration: 0.05, yoyo: true, repeat: 5,
+        onComplete: () => gsap.set(heroSection, { x: 0 })
+      });
+
+      // Create explosion ring
+      const ring = document.createElement('div');
+      ring.className = 'explosion-ring';
+      explosionDiv.appendChild(ring);
+      gsap.fromTo(ring, 
+        { width: 0, height: 0, opacity: 1 },
+        { width: 200, height: 200, opacity: 0, duration: 0.6, ease: 'power2.out',
+          onComplete: () => ring.remove()
+        }
+      );
+
+      // Create particles
+      const particleCount = 16;
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'explosion-particle';
+        const pAngle = (i / particleCount) * 360;
+        const pDist = 40 + Math.random() * 80;
+        const px = Math.cos(pAngle * Math.PI / 180) * pDist;
+        const py = Math.sin(pAngle * Math.PI / 180) * pDist;
+        const size = 2 + Math.random() * 5;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        explosionDiv.appendChild(particle);
+        gsap.fromTo(particle,
+          { x: 0, y: 0, opacity: 1, scale: 1 },
+          { x: px, y: py, opacity: 0, scale: 0, duration: 0.5 + Math.random() * 0.4,
+            ease: 'power3.out', onComplete: () => particle.remove()
+          }
+        );
+      }
+
+      // Create sparks (small lines)
+      for (let i = 0; i < 8; i++) {
+        const spark = document.createElement('div');
+        spark.className = 'explosion-spark';
+        const sAngle = (i / 8) * 360 + Math.random() * 30;
+        const sDist = 60 + Math.random() * 60;
+        const sx = Math.cos(sAngle * Math.PI / 180) * sDist;
+        const sy = Math.sin(sAngle * Math.PI / 180) * sDist;
+        spark.style.transform = `rotate(${sAngle}deg)`;
+        explosionDiv.appendChild(spark);
+        gsap.fromTo(spark,
+          { x: 0, y: 0, opacity: 1 },
+          { x: sx, y: sy, opacity: 0, duration: 0.4 + Math.random() * 0.3,
+            ease: 'power2.out', onComplete: () => spark.remove()
+          }
+        );
+      }
+    })
+
+    // 4) Flash the button white briefly
+    .to(btn, {
+      boxShadow: '0 0 60px 20px rgba(229, 193, 88, 0.8), 0 0 120px 40px rgba(197, 160, 33, 0.5)',
+      scale: 1.15,
+      duration: 0.15,
+      ease: 'power2.out'
+    })
+
+    // 5) Activate the button — transform to primary
+    .add(() => {
+      setBtnActivated(true);
+    })
+    .to(btn, {
+      boxShadow: '0 0 30px 5px rgba(197, 160, 33, 0.3)',
+      scale: 1,
+      duration: 0.5,
+      ease: 'elastic.out(1.2, 0.5)'
+    })
+
+    // 6) Fade out laser beam
+    .to([beamCore, beamGlow, eyeFlash], {
+      attr: { opacity: 0 },
+      duration: 0.3,
+      ease: 'power2.in'
+    }, '-=0.3')
+
+    // 7) Remove button glow shadow after settling
+    .to(btn, {
+      boxShadow: '0 0 0 0 transparent',
+      duration: 0.8,
+      ease: 'power2.out'
+    })
+
+    // 8) Cleanup
+    .add(() => {
+      svg.remove();
+      explosionDiv.remove();
+    });
+
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -71,7 +298,6 @@ const Hero = ({ isLight }) => {
           }
 
           vec3 finalColor = u_color * particles;
-          // Use particles for alpha so the background becomes transparent
           gl_FragColor = vec4(finalColor, particles);
         }
       `,
@@ -107,11 +333,16 @@ const Hero = ({ isLight }) => {
     };
     animate();
 
-    // Entrance Animation
+    // Entrance Animation — then fire laser
     const tl = gsap.timeline({ delay: 0.5 });
     tl.to([n1Ref.current, n2Ref.current], { y: '0%', duration: 1.2, stagger: 0.15, ease: 'expo.out' })
       .to(eyebrowRef.current, { opacity: 1, x: 0, duration: 0.8 }, '-=0.8')
-      .to(footerRef.current, { opacity: 1, y: 0, duration: 0.8 }, '-=0.6');
+      .to(footerRef.current, { opacity: 1, y: 0, duration: 0.8 }, '-=0.6')
+      // Wait for the robot to settle, then fire laser
+      .add(() => {
+        // Small delay for the Spline scene to fully render
+        setTimeout(() => fireLaser(), 800);
+      }, '+=0.5');
 
     return () => {
       window.removeEventListener('resize', resize);
@@ -120,7 +351,7 @@ const Hero = ({ isLight }) => {
       mesh.geometry.dispose();
       mesh.material.dispose();
     };
-  }, []);
+  }, [fireLaser]);
 
   return (
     <section id="hero" className="relative w-full overflow-hidden flex items-center min-h-[850px] lg:h-screen">
@@ -131,6 +362,9 @@ const Hero = ({ isLight }) => {
           className="-top-40 left-0 md:left-60 md:-top-20"
         />
       )}
+
+      {/* Laser container — sits over everything in the hero */}
+      <div ref={laserContainerRef} className="absolute inset-0 pointer-events-none" style={{ zIndex: 50 }}></div>
 
       <div className="flex flex-col lg:flex-row h-full w-full max-w-[1440px] px-8 md:px-16 mx-auto relative z-10 pt-24 lg:pt-0">
         
@@ -156,8 +390,9 @@ const Hero = ({ isLight }) => {
             </p>
             <div className="hero-btns flex gap-4">
               <button 
+                ref={resumeBtnRef}
                 onClick={() => setIsResumeOpen(true)}
-                className="btn btn-primary"
+                className={`btn ${btnActivated ? 'btn-primary' : 'btn-secondary'} laser-target-btn`}
               >
                 View Resume
               </button>
@@ -219,4 +454,3 @@ const Hero = ({ isLight }) => {
 };
 
 export default Hero;
-
