@@ -160,6 +160,28 @@ const Certifications = () => {
           border-color: var(--amber);
           color: var(--black);
         }
+        .cert-hint {
+          margin-top: 32px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          letter-spacing: 2px;
+          color: var(--amber);
+          text-transform: uppercase;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          opacity: 0.7;
+          transition: transform 0.3s ease;
+        }
+        .cert-hint::before {
+          content: '';
+          width: 16px;
+          height: 1px;
+          background: currentColor;
+        }
+        .cert-tile:hover .cert-hint {
+          transform: translateX(5px);
+        }
       `}</style>
       
       <section id="certifications">
@@ -179,6 +201,7 @@ const Certifications = () => {
                   <div className="cert-name">{cert.name}</div>
                   <div className="cert-issuer">{cert.issuer}</div>
                   <div className="cert-date">{cert.date}</div>
+                  <div className="cert-hint">Hover to View</div>
                 </div>
               </div>
             ))}
