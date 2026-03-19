@@ -476,24 +476,49 @@ body.light-theme .asteroid-rock {
   }
 }
 
-/* Short height screens (Laptops with many tabs/toolbars) */
+/* Short height screens (Laptops with many browser tabs/toolbars) */
 @media (max-height: 820px) and (min-width: 1024px) {
+  /* Global Section Tweak */
+  section { 
+    padding: 80px 64px !important; 
+  }
+  .sec-title { 
+    font-size: clamp(2.5rem, 7vw, 6rem) !important; 
+    margin-bottom: 40px !important; 
+  }
+  .sec-label { 
+    margin-bottom: 20px !important; 
+  }
+
+  /* Hero Tweak */
   #hero {
     align-items: flex-start !important;
     padding-top: 140px !important;
-    min-height: 650px !important; /* Safety floor for extremely short viewport */
+    min-height: 650px !important;
   }
   .hero-name {
     font-size: clamp(3.5rem, 8.5vw, 8rem) !important;
     margin-bottom: 20px !important;
   }
-  .hero-eyebrow {
-    margin-bottom: 12px !important;
-  }
-  .hero-tagline {
-    font-size: 1rem !important;
-    margin-bottom: 30px !important;
-  }
+  .hero-eyebrow { margin-bottom: 12px !important; }
+  .hero-tagline { font-size: 1rem !important; margin-bottom: 30px !important; }
+
+  /* About Tweak */
+  .about-layout { gap: 60px !important; }
+  .about-photo-frame { aspect-ratio: 1/1 !important; max-height: 400px !important; }
+  .about-big-quote { font-size: 1.3rem !important; margin-bottom: 30px !important; padding-left: 20px !important; }
+  .about-body p { font-size: 0.95rem !important; margin-bottom: 12px !important; }
+  .about-stats { margin-top: 40px !important; }
+  .stat-cell { padding: 20px 16px !important; }
+  .stat-n { font-size: 2rem !important; }
+
+  /* Experience Tweak */
+  .exp-card { padding: 40px 32px !important; }
+  .exp-role { font-size: 1.5rem !important; }
+  .exp-num { font-size: 3rem !important; }
+
+  /* Photography/Lens Tweak */
+  .photo-layout { gap: 40px !important; }
 }
 
 .hero-name-line { display: block; overflow: hidden; }
