@@ -476,6 +476,26 @@ body.light-theme .asteroid-rock {
   }
 }
 
+/* Short height screens (Laptops with many tabs/toolbars) */
+@media (max-height: 820px) and (min-width: 1024px) {
+  #hero {
+    align-items: flex-start !important;
+    padding-top: 140px !important;
+    min-height: 650px !important; /* Safety floor for extremely short viewport */
+  }
+  .hero-name {
+    font-size: clamp(3.5rem, 8.5vw, 8rem) !important;
+    margin-bottom: 20px !important;
+  }
+  .hero-eyebrow {
+    margin-bottom: 12px !important;
+  }
+  .hero-tagline {
+    font-size: 1rem !important;
+    margin-bottom: 30px !important;
+  }
+}
+
 .hero-name-line { display: block; overflow: hidden; }
 .hero-name-line span { 
   display: inline-block; 
