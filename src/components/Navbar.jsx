@@ -30,6 +30,8 @@ const Navbar = ({ isLight, setIsLight }) => {
     { href: '#experience', label: 'Work' },
     { href: '#projects', label: 'Projects' },
     { href: '#skills', label: 'Skills' },
+    { href: '#certifications', label: 'Certificates' },
+    { href: '#achievements', label: 'Achievements' },
     { href: '#photography', label: 'Lens' },
     { href: '#contact', label: 'Contact' },
   ];
