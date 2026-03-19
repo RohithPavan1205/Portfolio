@@ -28,7 +28,7 @@ const Education = () => {
               <span className="edu-type">Senior Secondary</span>
             </div>
             <h3 className="edu-degree">MPC (Mathematics, Physics, Chemistry)</h3>
-            <p className="edu-school">The Krishna Junior College, Andhra Pradesh</p>
+            <p className="edu-school">Narayana Junior College, Telangana</p>
             <ul className="edu-details">
               <li>Board of Intermediate Education: <strong>88%</strong></li>
               <li>Focused on logical reasoning and analytical problem solving.</li>
@@ -41,9 +41,9 @@ const Education = () => {
               <span className="edu-type">Secondary School</span>
             </div>
             <h3 className="edu-degree">SSC Grade X</h3>
-            <p className="edu-school">Sri Krishna Vidya Vihar High School, Andhra Pradesh</p>
+            <p className="edu-school">Ravindra Bharati School, Telangana</p>
             <ul className="edu-details">
-              <li>GPA: <strong>9.0 / 10.0</strong></li>
+              <li>GPA: <strong>10.0 / 10.0</strong></li>
             </ul>
           </div>
         </div>
