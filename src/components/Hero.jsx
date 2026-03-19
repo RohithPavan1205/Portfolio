@@ -327,7 +327,7 @@ const Hero = ({ isLight }) => {
       {/* Laser container — sits over everything in the hero */}
       <div ref={laserContainerRef} className="absolute inset-0 pointer-events-none" style={{ zIndex: 50 }}></div>
 
-      <div className="flex flex-col lg:flex-row h-full w-full max-w-[1440px] px-8 md:px-16 mx-auto relative z-10 pt-24 lg:pt-0">
+      <div className="flex flex-col lg:flex-row h-full w-full max-w-[1440px] px-8 md:px-16 mx-auto relative z-10 pt-24 lg:pt-20">
         
         {/* Left content */}
         <div className="flex-1 lg:p-8 relative z-10 flex flex-col justify-center order-2 lg:order-1 mt-10 lg:mt-0 pb-16 lg:pb-0">

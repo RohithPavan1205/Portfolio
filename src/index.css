@@ -459,11 +459,21 @@ body.light-theme .asteroid-rock {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 900;
   text-transform: uppercase;
-  font-size: clamp(5rem, 16vw, 14rem);
+  font-size: clamp(5rem, 14vw, 14rem);
   line-height: 0.82;
   letter-spacing: -0.04em;
   color: var(--white);
   margin-bottom: 40px;
+}
+
+@media (max-width: 1440px) {
+  .hero-name {
+    font-size: clamp(4rem, 11vw, 10rem);
+  }
+  .hero-tagline {
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+  }
 }
 
 .hero-name-line { display: block; overflow: hidden; }
